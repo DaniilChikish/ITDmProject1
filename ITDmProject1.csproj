@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\GlobalControllerMobile.cs" />
     <Compile Include="Assets\Scripts\MobileInterfaceEmulator.cs" />
     <Compile Include="Assets\Scripts\MotionController.cs" />
+    <Compile Include="Assets\Scripts\TextGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\DesktopMainMenu.cs" />
     <Compile Include="Assets\Scripts\UI\MobileMainMenu.cs" />
     <Compile Include="Assets\Scripts\UI\deus_UIUtility.cs" />
