@@ -10,12 +10,12 @@ using DeusUtility.UI;
 using DeusUtility.Serialization;
 namespace ITDmProject
 {
-
     public class GlobalControllerDesktop : MonoBehaviour
     {
         public Dictionary<string, Transform> wordObjs;
         public GameObject wordPrefab;
         private MotionController motor;
+        public Material pointMat;
         private int iter;
         public List<string> keys; //debug only
         public bool ServerUp;
@@ -254,6 +254,8 @@ namespace ITDmProject
         private void FullStorage()
         {
             int maxP = MaxPoints;
+            GameObject mainSphere = new GameObject("mainSphere");
+            mainSphere.transform.position = Vector3.zero;
 
             double[] randPosXArr = Randomizer.Uniform(-Radius, Radius, maxP * 6);
             double[] randPosYArr = Randomizer.Uniform(-Radius, Radius, maxP * 6);
@@ -265,6 +267,7 @@ namespace ITDmProject
 
             randPositions.Clear();
             randRotations.Clear();
+            GameObject point;
             int i = 0, j = 0;
             while (maxP > 0)
             {
@@ -285,7 +288,11 @@ namespace ITDmProject
 
                 randPositions.Push(position);
                 randRotations.Push(rotation);
-
+                point = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                point.transform.SetParent(mainSphere.transform);
+                point.transform.position = position;
+                point.transform.localScale = Vector3.one * ObjectRadius;
+                point.GetComponent<MeshRenderer>().material = pointMat;
                 maxP--;
             }
         }
