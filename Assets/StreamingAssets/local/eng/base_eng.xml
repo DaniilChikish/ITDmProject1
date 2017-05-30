@@ -36,6 +36,7 @@
 	<string>Radius</string>
 	<string>Object radius</string>
     <string>Sphere radius</string>
+    <string>Server name</string>
 	</keys>
   <values>
     <string>Yes</string>
@@ -78,5 +79,6 @@ Special for IT Dimension.</string>
     <string>Radius</string>
     <string>Object radius</string>
     <string>Sphere radius</string>
+    <string>Server name</string>
   </values>
 </SerializeDataOfStringString>

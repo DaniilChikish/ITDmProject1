@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using System;
 using System.IO;
 using System.Xml;
@@ -19,6 +20,8 @@ namespace ITDmProject
         private int iter;
         public List<string> keys; //debug only
         public bool ServerUp;
+        private GameObject server;
+        private NetworkManager manager;
         //storage
         private Stack<Vector3> randPositions;
         private Stack<Quaternion> randRotations;
@@ -52,6 +55,15 @@ namespace ITDmProject
         //        settings.musicLevel = value;
         //    }
         //}
+        public string ServerName
+        {
+            get { return settings.serverName; }
+            set
+            {
+                SettingsSaved = false;
+                settings.serverName = value;
+            }
+        }
         public float Duration
         {
             get { return settings.duration; }
@@ -148,6 +160,7 @@ namespace ITDmProject
         {
             settings = new SerializeSettingsDesktop();
             settings.localisation = Languages.English;
+            settings.serverName = ValidString.ReplaceChar(Environment.MachineName, '#', '_');
             //settings.musicLevel = 50;
             //settings.soundLevel = 50;
             settings.sphereRadius = 30;
@@ -192,8 +205,14 @@ namespace ITDmProject
             motor.duration = Duration;
             motor.delay = Delay;
             ServerUp = true;
-            Debug.Log("Up = " + ServerUp);
             //
+            server = new GameObject();
+            manager = server.AddComponent<NetworkManager>();
+            manager.StartServer(new ConnectionConfig())
+
+
+            //
+            Debug.Log("Up = " + ServerUp);
         }
         public void DownServer()
         {

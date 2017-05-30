@@ -5,11 +5,14 @@ using DeusUtility;
 using DeusUtility.Serialization;
 using System.Xml.Serialization;
 using System.IO;
+using UnityEngine.Networking;
 
 namespace ITDmProject
 {
     public class GlobalControllerMobile : MonoBehaviour
     {
+        //client
+        public List<ServerInfo> Servers;
         //settings
         private SerializeSettingsMobile settings;
         public bool SettingsSaved;
@@ -75,6 +78,7 @@ namespace ITDmProject
 
         private void Start()
         {
+            Servers = new List<ServerInfo>();
             RunClient();
         }
 
@@ -84,8 +88,9 @@ namespace ITDmProject
         }
         public void RunClient()
         {
-            
+            Servers.Clear();
         }
+        
 
         public void LoadLocalisationTexts()
         {

@@ -433,5 +433,14 @@ namespace DeusUtility.UI
                 return minVal;
             else return outp;
         }
+        public static string ReplaceChar(string input, char fromC, char toC)
+        {
+            string outp = "";
+            for (int i = 0; i < input.Length; i++)
+                if (input[i] == fromC)
+                    outp += toC;
+                else outp += input[i];
+            return outp;
+        }
     }
 }

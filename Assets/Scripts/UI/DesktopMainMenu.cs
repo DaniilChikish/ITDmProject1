@@ -15,6 +15,7 @@ namespace ITDmProject
         private Vector2 scrollAboutPosition = Vector2.zero;
         int sphereRad;
         int objRad;
+        string serverName;
         GlobalControllerDesktop Global;
         bool langChanged;
 
@@ -166,14 +167,14 @@ namespace ITDmProject
                 Global.Delay = fBuffer;
             GUI.EndGroup();
 
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 270, 340, 55));
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 230, 340, 55));
             UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts["Sphere radius"] + " - " + Global.Radius);
             iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Radius, 10f, 1000f));
             if (Global.Radius != iBuffer)
                 Global.Radius = iBuffer;
             GUI.EndGroup();
 
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 335, 340, 75));
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 295, 340, 75));
             UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts["Object radius"] + " - " + Global.ObjectRadius);
             iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.ObjectRadius, 1f, Global.Radius / 4));
             if (iBuffer > Global.Radius / 4) iBuffer = Global.Radius / 4;
@@ -181,14 +182,16 @@ namespace ITDmProject
                 Global.ObjectRadius = iBuffer;
             UIUtil.TextStyle1(new Rect(80, 55, 180, 20), Global.ObjectsInSphere(sphereRad, objRad).ToString() + " - objects");
             GUI.EndGroup();
-            //GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 100, 230, 200, 90));
-            //UIUtil.Label(new Rect(50, 0, 100, 20), Global.Texts["Sphere radius"]);
-            //sphereRad = ValidString.FormatIntRange(GUI.TextField(new Rect(0, 30, 200, 56), sphereRad.ToString(), 5), 10, 1000);
-            //if (sphereRad != Global.Radius)
-            //{
-            //    Global.Radius = sphereRad;
-            //}
-            //GUI.EndGroup();
+
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 100, 360, 200, 90));
+            UIUtil.Label(new Rect(50, 0, 100, 20), Global.Texts["Server name"]);
+            serverName = ValidString.ReplaceChar(GUI.TextField(new Rect(0, 30, 200, 56), serverName, 5), '#', '_');
+            if (serverName != Global.ServerName)
+            {
+                Global.ServerName = serverName;
+            }
+            GUI.EndGroup();
+            
             //GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 100, 320, 200, 120));
             //UIUtil.Label(new Rect(50, 0, 100, 20), Global.Texts["Object radius"]);
             //objRad = ValidString.FormatIntRange(GUI.TextField(new Rect(0, 30, 200, 56), objRad.ToString(), 5), 0, sphereRad);

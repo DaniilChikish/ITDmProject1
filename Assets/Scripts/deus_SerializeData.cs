@@ -50,6 +50,7 @@ namespace DeusUtility.Serialization
 		public Languages localisation;
 		public float screenExpWidth;
 		public float screenExpHeight;
+        public string serverName;
 		public int sphereRadius;
         public int objectRadius;
         public float duration;
