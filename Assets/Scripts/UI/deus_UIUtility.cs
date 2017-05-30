@@ -5,6 +5,8 @@ using System;
 using UnityEngine;
 namespace DeusUtility.UI
 {
+    //public enum DisplayOrientation {Landscape, Portrait}
+    public enum PositionAnchor { Up, Down, Left, Right, Center, LeftUp, LeftDown, RightUp, RightDown}
     public class UIWindowInfo
     {
         public Rect rect;
@@ -45,14 +47,88 @@ namespace DeusUtility.UI
                 return x;
             else return x * 0.8f;
         }
-        public static Vector2 GetWindow(float w, float h)
+        public static Vector2 GetRectSize(float w, float h)
         {
-            //if (Screen.height > 1000)
-            //    return new Vector2(w * 100, h * 100);
-            //else
-            if (Screen.height > 800)
+            if (Screen.width > Screen.height)
+                if (Screen.height > 800)
+                    return new Vector2(w * 100, h * 100);
+                else
+                    return new Vector2(w * 80, h * 80);
+            else
+                            if (Screen.height > 800)
                 return new Vector2(w * 100, h * 100);
-            else return new Vector2(w * 80, h * 80);//new Vector2(Screen.height * w / 10, Screen.height * h / 10);
+            else
+                return new Vector2(w * 80, h * 80);
+        }
+		public static Rect GetRect(Vector2 size, PositionAnchor anchor)
+		{
+            return GetRect(size, anchor, new Vector2(Screen.width, Screen.height), Vector2.zero);
+		}
+        public static Rect GetRect(Vector2 size, PositionAnchor anchor, Vector2 parent)
+        {
+            return GetRect(size, anchor, parent, Vector2.zero);
+        }
+        public static Rect GetRect(Vector2 size, PositionAnchor anchor, Vector2 parent, Vector2 positionRelAnchor)
+        {
+            Vector2 position = new Vector2();
+            switch (anchor)
+            {
+                case PositionAnchor.Center:
+                    {
+                        position.x = (parent.x - size.x) / 2 + positionRelAnchor.x;
+                        position.y = (parent.y - size.y) / 2 + positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.Down:
+                    {
+                        position.x = (parent.x - size.x) / 2 + positionRelAnchor.x;
+                        position.y = (parent.y - size.y) + positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.Up:
+                    {
+                        position.x = (parent.x - size.x) / 2 + positionRelAnchor.x;
+                        position.y = positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.Left:
+                    {
+                        position.x = positionRelAnchor.x;
+                        position.y = (parent.y - size.y) / 2 + positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.Right:
+                    {
+                        position.x = (parent.x - size.x) + positionRelAnchor.x;
+                        position.y = (parent.y - size.y) / 2 + positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.LeftUp:
+                    {
+                        position.x = positionRelAnchor.x;
+                        position.y = positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.LeftDown:
+                    {
+                        position.x = positionRelAnchor.x;
+                        position.y = (parent.y - size.y) + positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.RightUp:
+                    {
+                        position.x = (parent.x - size.x) + positionRelAnchor.x;
+                        position.y = positionRelAnchor.y;
+                        break;
+                    }
+                case PositionAnchor.RightDown:
+                    {
+                        position.x = (parent.x - size.x) + positionRelAnchor.x;
+                        position.y = (parent.y - size.y) + positionRelAnchor.y;
+                        break;
+                    }
+            }
+            return new Rect(position, size);
         }
         public static void WindowTitle(UIWindowInfo window, string text)
         {

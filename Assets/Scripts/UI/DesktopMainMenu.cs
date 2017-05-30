@@ -51,9 +51,9 @@ namespace ITDmProject
                     CurWin = MenuWindow.Nothing;
             }
             //
-            Vector2 W4x4 = UIUtil.GetWindow(4, 4);
-            Vector2 W8x6 = UIUtil.GetWindow(8, 6);
-            Vector2 W6x2 = UIUtil.GetWindow(6, 2);
+            Vector2 W4x4 = UIUtil.GetRectSize(4, 4);
+            Vector2 W8x6 = UIUtil.GetRectSize(8, 6);
+            Vector2 W6x2 = UIUtil.GetRectSize(6, 2);
             Windows[0] = new UIWindowInfo(new Rect(new Vector2((Screen.width - W4x4.x) / 2, ((Screen.height - W4x4.y) / 2)), W4x4));//main
             Windows[1] = new UIWindowInfo(new Rect(new Vector2((Screen.width - W6x2.x) / 2, ((Screen.height - W6x2.y) / 2)), W6x2));//question
             Windows[2] = new UIWindowInfo(new Rect(new Vector2((Screen.width - W8x6.x) / 2, ((Screen.height - W8x6.y) / 2)), W8x6));//options

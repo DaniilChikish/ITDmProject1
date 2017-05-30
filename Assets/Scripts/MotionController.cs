@@ -46,7 +46,9 @@ namespace ITDmProject
                             this.transform.rotation = Quaternion.RotateTowards(this.transform.rotation, targets.Peek().rotation, Time.deltaTime * speedRotation);
                             float speedFactor = Mathf.Cos(alive * Mathf.PI * 2 / duration + Mathf.PI) + 1;
                             speedMotion = distance / duration * speedFactor;
-                            body.velocity = (targets.Peek().position - this.transform.position).normalized * speedMotion; //body.AddForce((target.position - this.transform.position).normalized * speedMotion, ForceMode.Acceleration);
+                            //body.velocity = (targets.Peek().position - this.transform.position).normalized * speedMotion; 
+                            //body.AddForce((target.position - this.transform.position).normalized * speedMotion, ForceMode.Acceleration);
+                            this.transform.Translate((targets.Peek().position - this.transform.position).normalized * speedMotion * Time.deltaTime, Space.World);
                         }
                         else
                         {

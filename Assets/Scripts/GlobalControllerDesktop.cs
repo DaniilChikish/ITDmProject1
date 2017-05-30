@@ -288,11 +288,13 @@ namespace ITDmProject
 
                 randPositions.Push(position);
                 randRotations.Push(rotation);
+
                 point = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 point.transform.SetParent(mainSphere.transform);
                 point.transform.position = position;
                 point.transform.localScale = Vector3.one * ObjectRadius;
                 point.GetComponent<MeshRenderer>().material = pointMat;
+
                 maxP--;
             }
         }

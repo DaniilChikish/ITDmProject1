@@ -18,6 +18,7 @@
     <string>Quit</string>
     <string>Run</string>
     <string>Discover</string>
+    <string>Refresh</string>
     <string>Connect</string>
     <string>Disconnect</string>
     <string>Up</string>
@@ -54,6 +55,7 @@
     <string>Quit</string>
     <string>Run</string>
     <string>Discover</string>
+    <string>Refresh</string>
     <string>Connect</string>
     <string>Disconnect</string>
     <string>Up</string>
