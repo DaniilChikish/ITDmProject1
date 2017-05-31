@@ -122,7 +122,7 @@ namespace ITDmProject
             {
                 if (UIUtil.ButtonBig(new Rect(Windows[windowID].CenterX - 100, 100, 200, 50), Global.Texts["Up"]))
                 {
-                    Global.RunServer();
+                    Global.RunServerBroadcast();
                     CurWin = MenuWindow.Nothing;
                 }
             }
@@ -130,7 +130,7 @@ namespace ITDmProject
             {
                 if (UIUtil.ButtonBig(new Rect(Windows[windowID].CenterX - 100, 100, 200, 50), Global.Texts["Down"]))
                 {
-                    Global.DownServer();
+                    Global.ServerDown();
                 }
             }
             if (UIUtil.ButtonBig(new Rect(Windows[windowID].CenterX - 100, 150, 200, 50), Global.Texts["Options"]))
@@ -214,7 +214,7 @@ namespace ITDmProject
             radios[0] = "English";
             radios[1] = "Русский";
             int radioSelected = (int)Global.Localisation;
-            GUI.BeginGroup(new Rect(77, 380, 100, 110));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.LeftDown, Windows[windowID].rect.size));
             UIUtil.Label(new Rect(0, 0, 100, 20), Global.Texts["Language"]);
             radioSelected = UIUtil.ToggleList(new Rect(0, 40, 100, 74), radioSelected, radios);
             GUI.EndGroup();

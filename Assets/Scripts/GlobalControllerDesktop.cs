@@ -19,7 +19,8 @@ namespace ITDmProject
         public Material pointMat;
         private int iter;
         public List<string> keys; //debug only
-        public bool ServerUp;
+        private bool serverUp;
+        public bool ServerUp { get { return serverUp; }}
         private GameObject server;
         private NetworkManager manager;
         //storage
@@ -37,24 +38,6 @@ namespace ITDmProject
                 settings.localisation = value;
             }
         }
-        //public float SoundLevel
-        //{
-        //    get { return settings.soundLevel; }
-        //    set
-        //    {
-        //        SettingsSaved = false;
-        //        settings.soundLevel = value;
-        //    }
-        //}
-        //public float MusicLevel
-        //{
-        //    get { return settings.musicLevel; }
-        //    set
-        //    {
-        //        SettingsSaved = false;
-        //        settings.musicLevel = value;
-        //    }
-        //}
         public string ServerName
         {
             get { return settings.serverName; }
@@ -184,7 +167,7 @@ namespace ITDmProject
                 Debug.Log(path + " - ok");
                 fs.Close();
             }
-            catch (FileNotFoundException)
+            catch (Exception)
             {
                 Debug.Log("set default");
                 SetDefault();
@@ -195,28 +178,39 @@ namespace ITDmProject
         private void Start()
         {
             motor = GameObject.FindObjectOfType<MotionController>();
-            RunServer();
+            RunServerBroadcast();
         }
 
-        public void RunServer()
+        public void RunServerBroadcast()
         {
             FullStorage();
             LoadWords();
             motor.duration = Duration;
             motor.delay = Delay;
-            ServerUp = true;
-            //
-            server = new GameObject();
-            manager = server.AddComponent<NetworkManager>();
-            manager.StartServer(new ConnectionConfig())
-
 
             //
+            if (server)
+                Destroy(server);
+            server = new GameObject("server");
+            server.AddComponent<NetBroadcastTransmitter>();
+
+            //manager = server.AddComponent<NetworkManager>();
+            //manager.StartServer(new ConnectionConfig());
+        }
+        public void RunserverMessanger()
+        {
+            server.AddComponent<NetMessageReciever>();
+        }
+        public void SetServerUp()
+        {
+			serverUp = true;
             Debug.Log("Up = " + ServerUp);
         }
-        public void DownServer()
+        public void ServerDown()
         {
-            ServerUp = false;
+            serverUp = false;
+            server.GetComponent<NetBroadcastTransmitter>().Down();
+            Destroy(server);
         }
 
         private void Update()
@@ -381,7 +375,7 @@ namespace ITDmProject
         //        wordObjs.Add(ID, inW.transform);
         //    }
         //}
-        public string CreateWord(string text)
+        private string CreateWord(string text)
         {
             string ID = "";
             if (randPositions.Count == 0 || randRotations.Count == 0)
@@ -396,9 +390,10 @@ namespace ITDmProject
                 keys.Add(ID); //debug
                 wordObjs.Add(ID, inW.transform);
             }
+            Debug.Log(text + " created as " + ID);
             return ID;
         }
-        public void CreateWords(string[] words)
+        private void CreateWords(string[] words)
         {
             foreach (string text in words)
             {
@@ -413,6 +408,10 @@ namespace ITDmProject
         public void AddNCaptere(string text)
         {
             Capture(CreateWord(text));
+        }
+        private void OnApplicationQuit()
+        {
+            ServerDown();
         }
     }
 }

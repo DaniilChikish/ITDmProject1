@@ -1,14 +1,15 @@
 ﻿<Properties StartupConfiguration="{CE323130-E8FE-34FA-7511-80F32AC9DDCD}|Модульные тесты">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/DebugScreenRotator.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UI/MobileMainMenu.cs">
     <Files>
-      <File FileName="Assets/Scripts/GlobalControllerDesktop.cs" Line="119" Column="1" />
-      <File FileName="Assets/Scripts/UI/DesktopMainMenu.cs" Line="214" Column="44" />
-      <File FileName="Assets/Scripts/GlobalControllerMobile.cs" Line="123" Column="28" />
+      <File FileName="Assets/Scripts/GlobalControllerDesktop.cs" Line="214" Column="10" />
+      <File FileName="Assets/Scripts/NetBroadcastTransmitter.cs" Line="79" Column="10" />
+      <File FileName="Assets/Scripts/NetMessageReciever.cs" Line="35" Column="70" />
+      <File FileName="Assets/Scripts/GlobalControllerMobile.cs" Line="102" Column="58" />
+      <File FileName="Assets/Scripts/NetBroadcastReciever.cs" Line="28" Column="44" />
+      <File FileName="Assets/Scripts/NetMessageTransmitter.cs" Line="32" Column="53" />
+      <File FileName="Assets/Scripts/UI/DesktopMainMenu.cs" Line="125" Column="46" />
+      <File FileName="Assets/StreamingAssets/local/eng/base_eng.xml" Line="10" Column="27" />
       <File FileName="Assets/Scripts/UI/MobileMainMenu.cs" Line="29" Column="13" />
-      <File FileName="Assets/Scripts/MotionController.cs" Line="51" Column="161" />
-      <File FileName="Assets/Scripts/UI/deus_UIUtility.cs" Line="112" Column="46" />
-      <File FileName="Assets/Scripts/deus_SerializeData.cs" Line="63" Column="2" />
-      <File FileName="Assets/Scripts/DebugScreenRotator.cs" Line="14" Column="8" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

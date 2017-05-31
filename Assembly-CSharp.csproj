@@ -51,6 +51,10 @@
      <Compile Include="Assets\Scripts\GlobalControllerMobile.cs" />
      <Compile Include="Assets\Scripts\MobileInterfaceEmulator.cs" />
      <Compile Include="Assets\Scripts\MotionController.cs" />
+     <Compile Include="Assets\Scripts\NetBroadcastReciever.cs" />
+     <Compile Include="Assets\Scripts\NetBroadcastTransmitter.cs" />
+     <Compile Include="Assets\Scripts\NetMessageReciever.cs" />
+     <Compile Include="Assets\Scripts\NetMessageTransmitter.cs" />
      <Compile Include="Assets\Scripts\TextGenerator.cs" />
      <Compile Include="Assets\Scripts\UI\DesktopMainMenu.cs" />
      <Compile Include="Assets\Scripts\UI\MobileMainMenu.cs" />

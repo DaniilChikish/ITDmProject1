@@ -18,7 +18,8 @@ namespace ITDmProject
             if (NetworkServer.active)
             {
                 //registering the server handler
-                NetworkServer.RegisterHandler(0, ServerReceiveMessage);
+                NetworkServer.RegisterHandler(666, ServerReceiveMessage);
+                Global.SetServerUp();
             }
         }
         private void ServerReceiveMessage(NetworkMessage message)
@@ -26,16 +27,16 @@ namespace ITDmProject
             string word = message.ReadMessage<StringMessage>().value;
             Debug.Log("Recieved - " + word);
             CreateWord(word);
-
-            StringMessage myMessage = new StringMessage();
+            message.conn.Disconnect();
+            //StringMessage myMessage = new StringMessage();
             //we are using the connectionId as player name only to exemplify
-            myMessage.value = "OK";
+            //myMessage.value = "OK";
             //sending to all connected clients
-            NetworkServer.SendToClient(message.conn.connectionId, 0, myMessage);
+            //NetworkServer.SendToClient(message.conn.connectionId, 666, myMessage);
         }
         public void CreateWord(string word)
         {
-            Global.CreateWord(word);
+            Global.AddNCaptere(word);
         }
     }
 }

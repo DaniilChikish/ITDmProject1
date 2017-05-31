@@ -13,19 +13,20 @@ namespace ITDmProject
         {
             Global = FindObjectOfType<GlobalControllerDesktop>();
             Application.runInBackground = true;
-            startServer();
+            StartServer();
         }
 
         //Call to create a server
-        public void startServer()
+        public void StartServer()
         {
-            int serverPort = createServer();
+            int serverPort = CreateServer();
             if (serverPort != -1)
             {
                 Debug.Log("Server created on port : " + serverPort);
                 broadcastData = serverPort.ToString() + "#" + Global.ServerName;
                 Initialize();
                 StartAsServer();
+                Global.RunserverMessanger();
             }
             else
             {
@@ -38,7 +39,7 @@ namespace ITDmProject
         int defaultPort = 10000;
 
         //Creates a server then returns the port the server is created with. Returns -1 if server is not created
-        private int createServer()
+        private int CreateServer()
         {
             int serverPort = -1;
             //Connect to default port
@@ -73,6 +74,10 @@ namespace ITDmProject
                 }
             }
             return serverPort;
+        }
+        public void Down()
+        {
+            NetworkServer.Shutdown();
         }
     }
 }

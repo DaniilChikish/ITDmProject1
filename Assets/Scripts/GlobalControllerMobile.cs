@@ -6,12 +6,15 @@ using DeusUtility.Serialization;
 using System.Xml.Serialization;
 using System.IO;
 using UnityEngine.Networking;
+using System;
 
 namespace ITDmProject
 {
     public class GlobalControllerMobile : MonoBehaviour
     {
         //client
+        public NetBroadcastReciever broadcastReciever;
+        public NetMessageTransmitter messageTransmitter;
         public List<ServerInfo> Servers;
         //settings
         private SerializeSettingsMobile settings;
@@ -68,7 +71,7 @@ namespace ITDmProject
                 Debug.Log(path + " - ok");
                 fs.Close();
             }
-            catch (FileNotFoundException)
+            catch (Exception)
             {
                 Debug.Log("set default");
                 SetDefault();
@@ -89,8 +92,41 @@ namespace ITDmProject
         public void RunClient()
         {
             Servers.Clear();
+            if (broadcastReciever)
+            {
+                Destroy(broadcastReciever);
+                Debug.Log("Existing reciever destriyed");
+            }
+            GameObject body = new GameObject("reciever");
+            this.gameObject.AddComponent<NetworkManager>();
+			broadcastReciever = body.AddComponent<NetBroadcastReciever>();
         }
-        
+        public void ConnectTo(int serverIndex)
+        {
+            if (!messageTransmitter)
+            {
+                GameObject body = new GameObject("transmitter");
+                //body.AddComponent<NetworkManager>();
+                messageTransmitter = body.gameObject.AddComponent<NetMessageTransmitter>();
+                Debug.Log("Transmiter created");
+			}
+            {
+            //    Destroy(messageTransmitter);
+			//	Debug.Log("Existing transmitter destriyed");
+			}
+            //if (NetworkManager.singleton.client.isConnected)
+            //{
+            //    NetworkManager.singleton.client.Disconnect();
+            //    Debug.Log("Axisting connection down");
+            //}
+            NetworkManager.singleton.networkAddress = Servers[serverIndex].Address;
+			NetworkManager.singleton.networkPort = Convert.ToInt16(Servers[serverIndex].Port);
+			NetworkManager.singleton.StartClient();
+        }
+        public void Send(string word)
+        {
+            messageTransmitter.Send(word);
+        }
 
         public void LoadLocalisationTexts()
         {

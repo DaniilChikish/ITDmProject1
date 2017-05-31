@@ -15,21 +15,31 @@ namespace ITDmProject
         void Start()
         {
             Global = FindObjectOfType<GlobalControllerMobile>();
-            NetworkManager.singleton.client.RegisterHandler(0, RecieveMessage);
         }
-
+        public void OpenConnection()
+        {
+			NetworkManager.singleton.client.RegisterHandler(666, RecieveMessage);
+		}
         private void RecieveMessage(NetworkMessage netMsg)
         {
             string text = netMsg.ReadMessage<StringMessage>().value;
         }
 
-        public void SendMessage(string word)
+        public void Send(string word)
         {
             StringMessage myMessage = new StringMessage();
             //getting the value of the input
             myMessage.value = word;
             //sending to server
-            NetworkManager.singleton.client.Send(0, myMessage);
+            NetworkManager.singleton.client.Send(666, myMessage);
+            Debug.Log("Sent");
+            //Destroy(this);
+        }
+        private void OnDestroy()
+        {
+            NetworkManager.singleton.client.Shutdown();
+			//NetworkManager.Shutdown();
+			Debug.Log("Transmitter destroyed");
         }
     }
 }

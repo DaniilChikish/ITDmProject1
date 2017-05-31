@@ -17,23 +17,34 @@ namespace ITDmProject
         {
             Initialize();
             StartAsClient();
+            Debug.Log("Broadcast client started");
         }
-
+        private void OnConnectedToServer()
+        {
+			Debug.Log("Connected");
+        }
         public override void OnReceivedBroadcast(string fromAddress, string data)
         {
             string[] deparse = data.Split('#');
-            Debug.Log("Found " + deparse[1] + "from - " + fromAddress);
-            Global.Servers.Add(new ServerInfo(fromAddress, deparse[0], deparse[1]));
+            //Debug.Log("Recieve " + data);
+            //Debug.Log("from " + fromAddress);
+            ServerInfo finded = new ServerInfo(fromAddress, deparse[0], deparse[1]);
+            if (!Global.Servers.Exists(x => x.Address == fromAddress))
+                Global.Servers.Add(finded);
+        }
+        private void OnDestroy()
+        {
+            //if (NetworkManager.singleton.isActiveAndEnabled)
         }
     }
     public class ServerInfo
     {
-        public string address;
-        public string port;
-        public string name;
+        private string address;
+        private string port;
+        private string name;
         public string Address { get { return address; } }
         public string Port { get { return port; } }
-        public string Name { get { return address; } }
+        public string Name { get { return name; } }
         public ServerInfo(string address, string port, string name)
         {
             this.address = address;
