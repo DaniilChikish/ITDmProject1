@@ -47,19 +47,28 @@ namespace DeusUtility.UI
                 return x;
             else return x * 0.8f;
         }
+        //public static Vector2 GetRectSize(float w, float h)
+        //{
+        //    if (Screen.width > Screen.height)
+        //        if (Screen.height > 800)
+        //            return new Vector2(w * 100, h * 100);
+        //        else
+        //            return new Vector2(w * 80, h * 80);
+        //    else
+        //                    if (Screen.height > 800)
+        //        return new Vector2(w * 100, h * 100);
+        //    else
+        //        return new Vector2(w * 80, h * 80);
+        //}
         public static Vector2 GetRectSize(float w, float h)
         {
+            float prop;
             if (Screen.width > Screen.height)
-                if (Screen.height > 800)
-                    return new Vector2(w * 100, h * 100);
-                else
-                    return new Vector2(w * 80, h * 80);
-            else
-                            if (Screen.height > 800)
-                return new Vector2(w * 100, h * 100);
-            else
-                return new Vector2(w * 80, h * 80);
+                prop = Screen.width / w;
+            else prop = Screen.height / h;
+            return new Vector2(w * prop, h * prop);
         }
+
 		public static Rect GetRect(Vector2 size, PositionAnchor anchor)
 		{
             return GetRect(size, anchor, new Vector2(Screen.width, Screen.height), Vector2.zero);

@@ -8,7 +8,9 @@ namespace ITDmProject
     public class MobileMainMenu : MonoBehaviour
     {
         protected enum MenuWindow { Main, Launch, Options, About }
+        public Rect mainRect;
         public GUISkin Skin;
+        public float scale;
         private MenuWindow CurWin;
         UIWindowInfo[] Windows;
         private Vector2 scrollAboutPosition = Vector2.zero;
@@ -28,44 +30,51 @@ namespace ITDmProject
         }
         private void Update()
         {
+            scale = Screen.height / 720f;
+            mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
             //
             //Debug.Log(Screen.orientation);
             //f (Screen.orientation == ScreenOrientation.Landscape)
-            Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(12, 7), PositionAnchor.Center));//main
+            Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(16, 9f) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
             //else Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(7, 12), PositionAnchor.Center));//main
-            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(4, 3.2f), PositionAnchor.Center));//launch
+            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(8, 6.4f) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
             //
         }
         void OnGUI()
         {
             GUI.skin = Skin;
-            GUI.BeginGroup(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 100, 100, 100));
-            switch (CurWin)
+            //Matrix4x4 mat = new Matrix4x4();
+            //mat.SetTRS(Vector3.one*scale, Quaternion.identity, Vector3.one * scale);
+            GUI.matrix = Matrix4x4.Scale(Vector3.one * scale);
+            GUI.BeginGroup(mainRect);
             {
-                case MenuWindow.Main:
-                    {
-                        GUI.Window(0, Windows[0].rect, DrawMainW, "");
-                        break;
-                    }
-                case MenuWindow.Launch:
-                    {
-                        GUI.Window(1, Windows[1].rect, DrawLaunchW, "");
-                        break;
-                    }
-                case MenuWindow.Options:
-                    {
-                        GUI.Window(0, Windows[0].rect, DrawOptionsW, "");
-                        break;
-                    }
-                case MenuWindow.About:
-                    {
-                        GUI.Window(0, Windows[0].rect, DrawAboutW, "");
-                        break;
-                    }
+                switch (CurWin)
+                {
+                    case MenuWindow.Main:
+                        {
+                            GUI.Window(0, Windows[0].rect, DrawMainW, "");
+                            break;
+                        }
+                    case MenuWindow.Launch:
+                        {
+                            GUI.Window(1, Windows[1].rect, DrawLaunchW, "");
+                            break;
+                        }
+                    case MenuWindow.Options:
+                        {
+                            GUI.Window(0, Windows[0].rect, DrawOptionsW, "");
+                            break;
+                        }
+                    case MenuWindow.About:
+                        {
+                            GUI.Window(0, Windows[0].rect, DrawAboutW, "");
+                            break;
+                        }
+                }
+                UIUtil.Exclamation(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.LeftDown, mainRect.size), "Jogo Deus");
+                UIUtil.Exclamation(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.RightDown, mainRect.size), "v. " + Application.version);
             }
             GUI.EndGroup();
-            UIUtil.Exclamation(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.LeftDown), "Jogo Deus");
-            UIUtil.Exclamation(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.RightDown), "v. " + Application.version);
         }
         void DrawMainW(int windowID)
         {
