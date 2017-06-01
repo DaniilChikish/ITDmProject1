@@ -10,7 +10,9 @@ namespace ITDmProject
         protected enum MenuWindow { Main, Launch, Options, About }
         public Rect mainRect;
         public GUISkin Skin;
+        public Vector2 screenRatio;
         public float scale;
+        public DeusUtility.UI.ScreenOrientation orientation;
         private MenuWindow CurWin;
         UIWindowInfo[] Windows;
         private Vector2 scrollAboutPosition = Vector2.zero;
@@ -30,15 +32,51 @@ namespace ITDmProject
         }
         private void Update()
         {
-            scale = Screen.height / 720f;
-            mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
-            //
-            //Debug.Log(Screen.orientation);
-            //f (Screen.orientation == ScreenOrientation.Landscape)
-            Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(16, 9f) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
-            //else Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(7, 12), PositionAnchor.Center));//main
-            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(8, 6.4f) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
-            //
+            //OrientAnalys();
+            ScaleScreen();
+        }
+        public void OrientAnalys()
+        {
+            switch (Screen.orientation)
+            {
+                case UnityEngine.ScreenOrientation.Portrait:
+                case UnityEngine.ScreenOrientation.PortraitUpsideDown:
+                    {
+                        orientation = DeusUtility.UI.ScreenOrientation.Portrait;
+                        break;
+                    }
+                case UnityEngine.ScreenOrientation.Landscape:
+                case UnityEngine.ScreenOrientation.AutoRotation:
+                case UnityEngine.ScreenOrientation.LandscapeRight:
+                case UnityEngine.ScreenOrientation.Unknown:
+                    {
+                        orientation = DeusUtility.UI.ScreenOrientation.Landscape;
+                        break;
+                    }
+            }
+        }
+        public void ScaleScreen()
+        {
+            screenRatio = UIUtil.GetRatio();
+            switch (orientation)
+            {
+                case DeusUtility.UI.ScreenOrientation.Landscape:
+                    {
+                        scale = Screen.width / (1280f / 1.5f);
+                        mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
+                        Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(16, 9), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
+                        Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
+                        break;
+                    }
+                case DeusUtility.UI.ScreenOrientation.Portrait:
+                    {
+                        scale = Screen.width / (720f / 1.5f);
+                        mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
+                        Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(9, 16), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
+                        Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
+                        break;
+                    }
+            }
         }
         void OnGUI()
         {
@@ -94,10 +132,10 @@ namespace ITDmProject
                 CurWin = MenuWindow.About;
             }
 
-            Rect viewRect = new Rect(0, 0, Windows[windowID].rect.size.x - 170, 50 + 55 * Global.Servers.Count*10);
-            UIUtil.Label(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 155)), Global.Servers.Count.ToString()+ " Servers");
+            Rect viewRect = new Rect(0, 0, Windows[windowID].rect.size.x - 170, 50 + 55 * Global.Servers.Count);
+            UIUtil.Label(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 125)), Global.Servers.Count.ToString()+ " Servers");
             scrollServersPosition = GUI.BeginScrollView(
-                UIUtil.GetRect(new Vector2(Windows[windowID].rect.size.x - 150, Windows[windowID].rect.size.y - 310), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 200)),
+                UIUtil.GetRect(new Vector2(Windows[windowID].rect.size.x - 150, Windows[windowID].rect.size.y - (175f + 60f)), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 175)),
                 scrollServersPosition, viewRect);
             {
                 int i;
@@ -120,7 +158,7 @@ namespace ITDmProject
         void DrawLaunchW(int windowID)
         {
             UIUtil.WindowTitle(Windows[windowID], "Mobile");
-            sendingWord = ValidString.ReplaceChar(GUI.TextField(UIUtil.GetRect(new Vector2(250, 60), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 100)), sendingWord, 15), '#', '_');
+            sendingWord = ValidString.ReplaceChar(GUI.TextField(UIUtil.GetRect(new Vector2(250, 60), PositionAnchor.Center, Windows[windowID].rect.size), sendingWord, 15), '#', '_');
             if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(250, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts["Send"]))
 			{
                 Global.Send(sendingWord);
@@ -136,7 +174,7 @@ namespace ITDmProject
             radios[0] = "English";
             radios[1] = "Русский";
             int radioSelected = (int)Global.Localisation;
-            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.LeftDown, Windows[windowID].rect.size));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 110)));
             UIUtil.Label(new Rect(0, 0, 100, 20), Global.Texts["Language"]);
             radioSelected = UIUtil.ToggleList(new Rect(0, 40, 100, 74), radioSelected, radios);
             GUI.EndGroup();
@@ -171,7 +209,7 @@ namespace ITDmProject
             UIUtil.TextContainerText(new Rect(27, 40, UIUtil.Scaled(220), 60), Global.Texts["Develop_content"]);
             GUI.EndGroup();
 
-            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(UIUtil.Scaled(200), 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(UIUtil.Scaled(200) / 2 + 30, -50)), Global.Texts["Developer page"]))
+            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(UIUtil.Scaled(200), 50), PositionAnchor.RightDown, Windows[windowID].rect.size, new Vector2(-50, -50)), Global.Texts["Developer page"]))
             {
                 Application.OpenURL("https://www.linkedin.com/in/%D0%B4%D0%B0%D0%BD%D0%B8%D0%B8%D0%BB-%D1%87%D0%B8%D0%BA%D0%B8%D1%88-5809a2108/");
             }

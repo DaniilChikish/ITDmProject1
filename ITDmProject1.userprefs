@@ -6,7 +6,7 @@
       <File FileName="Assets/Scripts/NetBroadcastTransmitter.cs" Line="44" Column="25" />
       <File FileName="Assets/Scripts/NetMessageReciever.cs" Line="30" Column="39" />
       <File FileName="Assets/Scripts/GlobalControllerMobile.cs" Line="121" Column="15" />
-      <File FileName="Assets/Scripts/UI/MobileMainMenu.cs" Line="33" Column="41" />
+      <File FileName="Assets/Scripts/UI/MobileMainMenu.cs" Line="33" Column="27" />
       <File FileName="Assets/Scripts/NetBroadcastReciever.cs" Line="30" Column="15" />
       <File FileName="Assets/Scripts/NetMessageTransmitter.cs" Line="36" Column="15" />
       <File FileName="Assets/StreamingAssets/local/eng/base_eng.xml" Line="86" Column="31" />

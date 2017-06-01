@@ -14,7 +14,7 @@ namespace ITDmProject
         // Use this for initialization
         void Start()
         {
-            Global = FindObjectOfType<GlobalControllerMobile>();
+			Global = FindObjectOfType<GlobalControllerMobile>();
         }
         public void OpenConnection()
         {

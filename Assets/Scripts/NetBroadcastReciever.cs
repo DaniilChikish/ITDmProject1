@@ -10,6 +10,7 @@ namespace ITDmProject
         void Start()
         {
             Global = FindObjectOfType<GlobalControllerMobile>();
+            showGUI = false;
             startClient();
         }
 

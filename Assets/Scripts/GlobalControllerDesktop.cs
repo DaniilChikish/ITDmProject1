@@ -193,11 +193,10 @@ namespace ITDmProject
                 Destroy(server);
             server = new GameObject("server");
             server.AddComponent<NetBroadcastTransmitter>();
-
             //manager = server.AddComponent<NetworkManager>();
             //manager.StartServer(new ConnectionConfig());
         }
-        public void RunserverMessanger()
+        public void RunServerMessanger()
         {
             server.AddComponent<NetMessageReciever>();
         }

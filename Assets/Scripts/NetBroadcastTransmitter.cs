@@ -12,6 +12,7 @@ namespace ITDmProject
         void Start()
         {
             Global = FindObjectOfType<GlobalControllerDesktop>();
+			showGUI = false;
             Application.runInBackground = true;
             StartServer();
         }
@@ -26,7 +27,7 @@ namespace ITDmProject
                 broadcastData = serverPort.ToString() + "#" + Global.ServerName;
                 Initialize();
                 StartAsServer();
-                Global.RunserverMessanger();
+                Global.RunServerMessanger();
             }
             else
             {

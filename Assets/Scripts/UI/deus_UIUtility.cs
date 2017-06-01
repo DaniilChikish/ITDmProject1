@@ -5,7 +5,7 @@ using System;
 using UnityEngine;
 namespace DeusUtility.UI
 {
-    //public enum DisplayOrientation {Landscape, Portrait}
+    public enum ScreenOrientation {Landscape, Portrait}
     public enum PositionAnchor { Up, Down, Left, Right, Center, LeftUp, LeftDown, RightUp, RightDown}
     public class UIWindowInfo
     {
@@ -60,15 +60,88 @@ namespace DeusUtility.UI
         //    else
         //        return new Vector2(w * 80, h * 80);
         //}
+        public static Vector2 GetRatio()
+        {
+            return GetRatio(new Vector2(Screen.width, Screen.height));
+        }
+        public static Vector2 GetRatio(Vector2 etalon)
+        {
+			Vector2 rectProp = new Vector2();
+			double ratio = etalon.x / etalon.y;
+			{
+				if (Math.Round(ratio, 5) == 1.77778) // 16x9
+				{
+					rectProp.x = 16;
+					rectProp.y = 9;
+				}
+				else if (Math.Round(ratio, 5) == 1.6) // 16x10
+				{
+					rectProp.x = 16;
+					rectProp.y = 10;
+				}
+				else if (Math.Round(ratio, 5) == 1.66667) // 5x3
+				{
+					rectProp.x = 5;
+					rectProp.y = 3;
+				}
+				else if (Math.Round(ratio, 5) == 1.33334) // 4x3
+				{
+					rectProp.x = 4;
+					rectProp.y = 3;
+				}
+				else if (Math.Round(ratio, 5) == 0.5625) // 9x16
+				{
+					rectProp.x = 9;
+					rectProp.y = 16;
+				}
+				else if (Math.Round(ratio, 5) == 0.625) // 10x16
+				{
+					rectProp.x = 10;
+					rectProp.y = 16;
+				}
+				else if (Math.Round(ratio, 5) == 0.6) // 3x5
+				{
+					rectProp.x = 3;
+					rectProp.y = 5;
+				}
+				else if (Math.Round(ratio, 5) == 0.75) // 3x4
+				{
+					rectProp.x = 3;
+					rectProp.y = 4;
+				}
+				else //default
+				{
+					rectProp.x = 16;
+					rectProp.y = 9;
+				}
+			}
+            return rectProp;
+        }
+        public static float GetProportionFactor()
+        {
+            return GetProportionFactor(new Vector2(Screen.width, Screen.height));
+        }
+        public static float GetProportionFactor(Vector2 etalon)
+        {
+            return GetProportionFactor(new Vector2(Screen.width, Screen.height), GetRatio());
+        }
+        public static float GetProportionFactor(Vector2 scaled, Vector2 rectProp)
+		{
+            if (scaled.x > scaled.y)
+                return scaled.y / rectProp.y;
+            else
+                return scaled.x / rectProp.x;
+		}
         public static Vector2 GetRectSize(float w, float h)
         {
-            float prop;
-            if (Screen.width > Screen.height)
-                prop = Screen.width / w;
-            else prop = Screen.height / h;
+            float prop = GetProportionFactor();
             return new Vector2(w * prop, h * prop);
         }
-
+        public static Vector2 GetRectSize(Vector2 size, Vector2 parent)
+		{
+            float prop = GetProportionFactor(parent);
+            return new Vector2(size.x * prop, size.y * prop);
+		}
 		public static Rect GetRect(Vector2 size, PositionAnchor anchor)
 		{
             return GetRect(size, anchor, new Vector2(Screen.width, Screen.height), Vector2.zero);
