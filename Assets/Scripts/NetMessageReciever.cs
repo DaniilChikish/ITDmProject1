@@ -19,9 +19,14 @@ namespace ITDmProject
             {
                 //registering the server handler
                 NetworkServer.RegisterHandler(666, ServerReceiveMessage);
-                Global.SetServerUp();
+                NetworkServer.RegisterHandler(MsgType.AddPlayer, OnAddPlayer);
+				Global.SetServerUp();
             }
         }
+		private void OnAddPlayer(NetworkMessage netMsg)
+		{
+            Debug.Log("Resieve 'AddPlayer' Msg");
+		}
         private void ServerReceiveMessage(NetworkMessage message)
         {
             string word = message.ReadMessage<StringMessage>().value;
