@@ -112,8 +112,13 @@ namespace ITDmProject
             set { SettingsSaved = false; settings.screenExpWidth = value.x; settings.screenExpHeight = value.y; }
         }
         //texts
-        public Dictionary<string, string> Texts;
-
+        private Dictionary<string, string> texts;
+		public string Texts(string key)
+		{
+			if (texts.ContainsKey(key))
+				return texts[key];
+            else return key;
+		}
         // Use this for initialization
         void OnEnable()
         {
@@ -121,9 +126,11 @@ namespace ITDmProject
             keys = new List<string>();
             randPositions = new Stack<Vector3>();
             randRotations = new Stack<Quaternion>();
+            texts = new Dictionary<string, string>();
             iter = 0;
-
+            Debug.Log("Try to load settings.");
             LoadSettings();
+            Debug.Log("Try to load localisation.");
             LoadLocalisationTexts();
         }
 
@@ -229,39 +236,95 @@ namespace ITDmProject
 
         public void LoadLocalisationTexts()
         {
-            string path = Application.streamingAssetsPath + "/local";
-            switch (Localisation)
+			try
+			{           
+            switch (Application.platform)
             {
-                case Languages.English:
+                case RuntimePlatform.Android:
                     {
-                        path += "/eng/base_eng.xml";
+                        LoadLocalisationTextsAndroid();
                         break;
                     }
-                case Languages.Russian:
+                    default:
                     {
-                        path += "/rus/base_rus.xml";
-                        break;
-                    }
-                case Languages.temp:
-                    {
-                        path += "/temp.xml";
+                        LoadLocalisationTextsDefault();
                         break;
                     }
             }
-
-            //SaveText();//debug only
-            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
-            // передаем в конструктор тип класса
-            XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
-            // десериализация
-            Debug.Log("open - " + path);
-            FileStream fs = new FileStream(path, FileMode.Open);
-            SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
-            serialeze.OnAfterDeserialize();
-            Debug.Log(serialeze.ToString());
-            Texts = new Dictionary<string, string>();
-            Texts = serialeze.Data;
+			}
+			catch (Exception)
+			{
+				texts = HardDefaultStorage.GetLocalisationDefault();
+			}
         }
+        private void LoadLocalisationTextsAndroid()
+        {
+                string path = Path.Combine(Application.streamingAssetsPath, "local");
+                switch (Localisation)
+                {
+                    case Languages.English:
+                        {
+                            path = Path.Combine(path, "/eng/base_eng.xml");
+                            break;
+                        }
+                    case Languages.Russian:
+                        {
+                            path = Path.Combine(path, "/rus/base_rus.xml");
+                            break;
+                        }
+                    case Languages.Default:
+                        {
+                            path += "/default.xml";
+                            break;
+                        }
+                }
+                //SaveText();//debug only
+                //SerializeData<string, string> textsSer = new SerializeData<string, string>();
+                // передаем в конструктор тип класса
+                XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
+                // десериализация
+                Debug.Log("open - " + path);
+                FileStream fs = new FileStream(path, FileMode.Open);
+                SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
+                serialeze.OnAfterDeserialize();
+                Debug.Log(serialeze.ToString());
+                //Texts = new Dictionary<string, string>();
+                texts = serialeze.Data;
+        }
+        private void LoadLocalisationTextsDefault()
+        {
+			string path = Application.streamingAssetsPath + "/local";
+			switch (Localisation)
+			{
+				case Languages.English:
+					{
+						path += "/eng/base_eng.xml";
+						break;
+					}
+				case Languages.Russian:
+					{
+						path += "/rus/base_rus.xml";
+						break;
+					}
+                case Languages.Default:
+					{
+						path += "/temp.xml";
+						break;
+					}
+			}
+			//SaveText();//debug only
+			//SerializeData<string, string> textsSer = new SerializeData<string, string>();
+			// передаем в конструктор тип класса
+			XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
+			// десериализация
+			Debug.Log("open - " + path);
+			FileStream fs = new FileStream(path, FileMode.Open);
+			SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
+			serialeze.OnAfterDeserialize();
+			Debug.Log(serialeze.ToString());
+			//Texts = new Dictionary<string, string>();
+			texts = serialeze.Data;
+		}
 
         private void FullStorage()
         {

@@ -81,7 +81,7 @@ namespace ITDmProject
         private void SetNextTarget()
         {
             Status = MotorState.Move;
-            backCount = duration;
+            backCount = duration * 1.01f;
             alive = 0;
             distance = Vector3.Distance(targets.Peek().position, this.transform.position);
             speedRotation = Quaternion.Angle(this.transform.rotation, targets.Peek().rotation) / backCount;

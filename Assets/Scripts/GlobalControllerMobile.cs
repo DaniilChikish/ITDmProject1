@@ -28,13 +28,23 @@ namespace ITDmProject
                 settings.localisation = value;
             }
         }
-		//texts
-		public Dictionary<string, string> Texts;
+        //texts
+        private Dictionary<string, string> texts;
+        public string Texts(string key)
+        {
+
+            if (texts.ContainsKey(key))
+                return texts[key];
+            else return key;
+        }
         //
         void OnEnable()
         {
-            LoadSettings();
-            LoadLocalisationTexts();
+            texts = new Dictionary<string, string>();
+			Debug.Log("Try to load settings.");
+			LoadSettings();
+			Debug.Log("Try to load localisation.");
+			LoadLocalisationTexts();
         }
 
         public void SaveSettings()
@@ -58,7 +68,7 @@ namespace ITDmProject
         }
         public void LoadSettings()
         {
-            Debug.Log("load settings");
+            Debug.Log("Load settings");
 
             string path = Application.streamingAssetsPath + "/settingsMobile.dat";
             // передаем в конструктор тип класса
@@ -73,7 +83,7 @@ namespace ITDmProject
             }
             catch (Exception)
             {
-                Debug.Log("set default");
+                Debug.Log("Set default");
                 SetDefault();
             }
             SettingsSaved = true;
@@ -99,7 +109,7 @@ namespace ITDmProject
             }
             GameObject body = new GameObject("reciever");
             this.gameObject.AddComponent<NetworkManager>();
-			broadcastReciever = body.AddComponent<NetBroadcastReciever>();
+            broadcastReciever = body.AddComponent<NetBroadcastReciever>();
         }
         public void ConnectTo(int serverIndex)
         {
@@ -109,19 +119,19 @@ namespace ITDmProject
                 //body.AddComponent<NetworkManager>();
                 messageTransmitter = body.gameObject.AddComponent<NetMessageTransmitter>();
                 Debug.Log("Transmiter created");
-			}
+            }
             {
-            //    Destroy(messageTransmitter);
-			//	Debug.Log("Existing transmitter destriyed");
-			}
+                //    Destroy(messageTransmitter);
+                //	Debug.Log("Existing transmitter destriyed");
+            }
             //if (NetworkManager.singleton.client.isConnected)
             //{
             //    NetworkManager.singleton.client.Disconnect();
             //    Debug.Log("Axisting connection down");
             //}
             NetworkManager.singleton.networkAddress = Servers[serverIndex].Address;
-			NetworkManager.singleton.networkPort = Convert.ToInt16(Servers[serverIndex].Port);
-			NetworkManager.singleton.StartClient();
+            NetworkManager.singleton.networkPort = Convert.ToInt16(Servers[serverIndex].Port);
+            NetworkManager.singleton.StartClient();
         }
         public void Send(string word)
         {
@@ -129,6 +139,64 @@ namespace ITDmProject
         }
 
         public void LoadLocalisationTexts()
+        {
+            try
+            {
+				Debug.Log("platform - " + Application.platform);
+				switch (Application.platform)
+                {
+                    case RuntimePlatform.Android:
+                        {
+                            LoadLocalisationTextsAndroid();
+                            break;
+                        }
+                    default:
+                        {
+                            LoadLocalisationTextsDefault();
+                            break;
+                        }
+                }
+            }
+            catch (Exception)
+            {
+                texts = HardDefaultStorage.GetLocalisationDefault();
+            }
+        }
+        private void LoadLocalisationTextsAndroid()
+        {
+            string path = Path.Combine(Application.streamingAssetsPath, "local");
+            switch (Localisation)
+            {
+                case Languages.English:
+                    {
+                        path = Path.Combine(path, "/eng/base_eng.xml");
+                        break;
+                    }
+                case Languages.Russian:
+                    {
+                        path = Path.Combine(path, "/rus/base_rus.xml");
+                        break;
+                    }
+                case Languages.Default:
+                    {
+                        path += "/default.xml";
+                        break;
+                    }
+            }
+            //SaveText();//debug only
+            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
+            // передаем в конструктор тип класса
+            XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
+            // десериализация
+            Debug.Log("open - " + path);
+            FileStream fs = new FileStream(path, FileMode.Open);
+            SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
+            serialeze.OnAfterDeserialize();
+            Debug.Log(serialeze.ToString());
+            //texts = new Dictionary<string, string>();
+            texts = serialeze.Data;
+        }
+        private void LoadLocalisationTextsDefault()
         {
             string path = Application.streamingAssetsPath + "/local";
             switch (Localisation)
@@ -143,13 +211,12 @@ namespace ITDmProject
                         path += "/rus/base_rus.xml";
                         break;
                     }
-                case Languages.temp:
+                case Languages.Default:
                     {
-                        path += "/temp.xml";
+                        path += "/default.xml";
                         break;
                     }
             }
-
             //SaveText();//debug only
             //SerializeData<string, string> textsSer = new SerializeData<string, string>();
             // передаем в конструктор тип класса
@@ -159,9 +226,9 @@ namespace ITDmProject
             FileStream fs = new FileStream(path, FileMode.Open);
             SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
             serialeze.OnAfterDeserialize();
-            Texts = new Dictionary<string, string>();
-            Texts = serialeze.Data;
-            Debug.Log(Texts.ToString());
-		}
+            Debug.Log(serialeze.ToString());
+            //texts = new Dictionary<string, string>();
+            texts = serialeze.Data;
+        }
     }
 }

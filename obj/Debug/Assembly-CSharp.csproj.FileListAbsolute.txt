@@ -1,0 +1,2 @@
+/Users/daniil.ch/Documents/GitHub/ITDmProject1/obj/Debug/Assembly-CSharp.csprojResolveAssemblyReference.cache
+/Users/daniil.ch/Documents/GitHub/ITDmProject1/obj/Debug/Assembly-CSharp.csproj.CoreCompileInputs.cache

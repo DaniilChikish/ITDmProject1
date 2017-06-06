@@ -3,5 +3,5 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace DeusUtility {
-	public enum Languages { English, Russian, temp};
+	public enum Languages { English, Russian, Default};
 }

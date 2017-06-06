@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\DebugScreenRotator.cs" />
      <Compile Include="Assets\Scripts\GlobalControllerDesktop.cs" />
      <Compile Include="Assets\Scripts\GlobalControllerMobile.cs" />
+     <Compile Include="Assets\Scripts\HardDefaultStorage.cs" />
      <Compile Include="Assets\Scripts\MobileInterfaceEmulator.cs" />
      <Compile Include="Assets\Scripts\MotionController.cs" />
      <Compile Include="Assets\Scripts\NetBroadcastReciever.cs" />
