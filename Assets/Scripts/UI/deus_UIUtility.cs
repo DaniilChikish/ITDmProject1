@@ -111,8 +111,16 @@ namespace DeusUtility.UI
 				}
 				else //default
 				{
-					rectProp.x = 16;
-					rectProp.y = 9;
+                    if (ratio > 1)
+                    {
+                        rectProp.x = 16;
+                        rectProp.y = 9;
+                    }
+                    else
+                    {
+						rectProp.x = 9;
+						rectProp.y = 16;
+                    }
 				}
 			}
             return rectProp;

@@ -46,13 +46,14 @@ namespace ITDmProject
                             this.transform.rotation = Quaternion.RotateTowards(this.transform.rotation, targets.Peek().rotation, Time.deltaTime * speedRotation);
                             float speedFactor = Mathf.Cos(alive * Mathf.PI * 2 / duration + Mathf.PI) + 1;
                             speedMotion = distance / duration * speedFactor;
-                            //body.velocity = (targets.Peek().position - this.transform.position).normalized * speedMotion; 
-                            //body.AddForce((target.position - this.transform.position).normalized * speedMotion, ForceMode.Acceleration);
-                            this.transform.Translate((targets.Peek().position - this.transform.position).normalized * speedMotion * Time.deltaTime, Space.World);
+							//body.velocity = (targets.Peek().position - this.transform.position).normalized * speedMotion; 
+							//body.AddForce((target.position - this.transform.position).normalized * speedMotion, ForceMode.Acceleration);
+							this.transform.Translate((targets.Peek().position - this.transform.position).normalized * speedMotion * Time.deltaTime, Space.World);
                         }
                         else
                         {
                             body.velocity = Vector3.zero;
+                            this.transform.rotation = targets.Peek().rotation;
                             Status = MotorState.Delay;
                             backCount = delay;
                         }
@@ -81,7 +82,7 @@ namespace ITDmProject
         private void SetNextTarget()
         {
             Status = MotorState.Move;
-            backCount = duration * 1.01f;
+            backCount = duration;
             alive = 0;
             distance = Vector3.Distance(targets.Peek().position, this.transform.position);
             speedRotation = Quaternion.Angle(this.transform.rotation, targets.Peek().rotation) / backCount;

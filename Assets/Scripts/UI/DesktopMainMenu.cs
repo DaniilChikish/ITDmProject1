@@ -39,7 +39,7 @@ namespace ITDmProject
             //Windows[5] = new SDWindowInfo(new Rect(0, Screen.height-100, 100, 100));//info
             sphereRad = Global.Radius;
             objRad = Global.ObjectRadius;
-
+            serverName = Global.ServerName;
         }
         private void Update()
         {
@@ -52,12 +52,12 @@ namespace ITDmProject
                     CurWin = MenuWindow.Nothing;
             }
             //
-            Vector2 W4x4 = UIUtil.GetRectSize(4, 4);
-            Vector2 W8x6 = UIUtil.GetRectSize(8, 6);
-            Vector2 W6x2 = UIUtil.GetRectSize(6, 2);
-            Windows[0] = new UIWindowInfo(new Rect(new Vector2((Screen.width - W4x4.x) / 2, ((Screen.height - W4x4.y) / 2)), W4x4));//main
-            Windows[1] = new UIWindowInfo(new Rect(new Vector2((Screen.width - W6x2.x) / 2, ((Screen.height - W6x2.y) / 2)), W6x2));//question
-            Windows[2] = new UIWindowInfo(new Rect(new Vector2((Screen.width - W8x6.x) / 2, ((Screen.height - W8x6.y) / 2)), W8x6));//options
+            Vector2 W4x4 = new Vector2(400, 400);//UIUtil.GetRectSize(4, 4);
+            Vector2 W8x6 = new Vector2(800, 600);//UIUtil.GetRectSize(8, 6);
+            Vector2 W6x2 = new Vector2(600, 200);//UIUtil.GetRectSize(6, 2);
+            Windows[0] = new UIWindowInfo(UIUtil.GetRect(W4x4, PositionAnchor.Center));//main
+            Windows[1] = new UIWindowInfo(UIUtil.GetRect(W6x2, PositionAnchor.Center));//question
+            Windows[2] = new UIWindowInfo(UIUtil.GetRect(W8x6, PositionAnchor.Center));//options
                                                                                                                                     //
         }
         void OnGUI()
@@ -185,7 +185,7 @@ namespace ITDmProject
 
             GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 100, 360, 200, 90));
             UIUtil.Label(new Rect(50, 0, 100, 20), Global.Texts("Server name"));
-            serverName = ValidString.ReplaceChar(GUI.TextField(new Rect(0, 30, 200, 56), serverName, 5), '#', '_');
+            serverName = ValidString.ReplaceChar(GUI.TextField(new Rect(0, 30, 200, 56), serverName, 15), '#', '_');
             if (serverName != Global.ServerName)
             {
                 Global.ServerName = serverName;
@@ -223,8 +223,6 @@ namespace ITDmProject
                 Global.Localisation = (Languages)radioSelected;
                 langChanged = true;
             }
-
-
 
             if (Global.SettingsSaved)
             {
