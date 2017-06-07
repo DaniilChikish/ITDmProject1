@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using DeusUtility;
 using DeusUtility.UI;
+using System;
+
 namespace ITDmProject
 {
     public class MobileMainMenu : MonoBehaviour
     {
-        protected enum MenuWindow { Main, Launch, Options, About }
+        protected enum MenuWindow { Admin, Servers, PutWord, Options, Lists, About }
         public Rect mainRect;
         public GUISkin Skin;
         public Vector2 screenRatio;
@@ -17,22 +19,29 @@ namespace ITDmProject
         UIWindowInfo[] Windows;
         private Vector2 scrollAboutPosition = Vector2.zero;
         private Vector2 scrollServersPosition = Vector2.zero;
+        private string serverName;
         GlobalControllerMobile Global;
         bool langChanged;
         string sendingWord;
+        private const string ConsolePass = "@deusaccess";
+        private Vector2 scrollWordsPosition;
 
         void Start()
         {
             Global = FindObjectOfType<GlobalControllerMobile>();
 
-            CurWin = MenuWindow.Main;
             Windows = new UIWindowInfo[2];
             sendingWord = "Input";
+            serverName = Global.ServerName;
             //Windows[5] = new SDWindowInfo(new Rect(0, Screen.height-100, 100, 100));//info
+            if (Global.Connected)
+                CurWin = MenuWindow.PutWord;
+            else
+                CurWin = MenuWindow.Servers;
         }
         private void Update()
         {
-            OrientAnalys();
+            //OrientAnalys();
             ScaleScreen();
         }
         public void OrientAnalys()
@@ -62,7 +71,7 @@ namespace ITDmProject
             {
                 case DeusUtility.UI.ScreenOrientation.Landscape:
                     {
-                        scale = Screen.width / (1280f / 1.8f);
+                        scale = Screen.width / (1280f / 1.4f);
                         mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
                         Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(16, 9), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
                         Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
@@ -70,7 +79,7 @@ namespace ITDmProject
                     }
                 case DeusUtility.UI.ScreenOrientation.Portrait:
                     {
-                        scale = Screen.width / (720f / 1.8f);
+                        scale = Screen.width / (720f / 1.4f);
                         mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
                         Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(9, 16), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
                         Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
@@ -81,21 +90,29 @@ namespace ITDmProject
         void OnGUI()
         {
             GUI.skin = Skin;
-            //Matrix4x4 mat = new Matrix4x4();
-            //mat.SetTRS(Vector3.one*scale, Quaternion.identity, Vector3.one * scale);
             GUI.matrix = Matrix4x4.Scale(Vector3.one * scale);
             GUI.BeginGroup(mainRect);
             {
                 switch (CurWin)
                 {
-                    case MenuWindow.Main:
-                        {
-                            GUI.Window(0, Windows[0].rect, DrawMainW, "");
-                            break;
-                        }
-                    case MenuWindow.Launch:
+                    case MenuWindow.PutWord:
                         {
                             GUI.Window(1, Windows[1].rect, DrawLaunchW, "");
+                            break;
+                        }
+                    case MenuWindow.Admin:
+                        {
+                            GUI.Window(0, Windows[0].rect, DrawAdminW, "");
+                            break;
+                        }
+                    case MenuWindow.Servers:
+                        {
+                            GUI.Window(0, Windows[0].rect, DrawServersW, "");
+                            break;
+                        }
+                    case MenuWindow.Lists:
+                        {
+                            GUI.Window(0, Windows[0].rect, DrawListsW, "");
                             break;
                         }
                     case MenuWindow.Options:
@@ -114,102 +131,169 @@ namespace ITDmProject
             }
             GUI.EndGroup();
         }
-        void DrawMainW(int windowID)
+
+        private void DrawAdminW(int windowID)
         {
-            UIUtil.WindowTitle(Windows[windowID], "Mobile");
-            //GUI.color.a = window.UIAlpha;
-            //if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts["Refresh"]))
-            //{
-            //    Global.RunClient();
-            //}
-            if (orientation == DeusUtility.UI.ScreenOrientation.Landscape)
+            UIUtil.WindowTitle(Windows[windowID], "Administration");
+            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 100)), Global.Texts("Connection")))
             {
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(50, 100)), Global.Texts("Options")))
+                CurWin = MenuWindow.Servers;
+            }
+            if (Global.Connected)
+            {
+                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 160)), Global.Texts("Lists")))
                 {
-                    langChanged = false;
+                    CurWin = MenuWindow.Lists;
+                }
+                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 220)), Global.Texts("Options")))
+                {
                     CurWin = MenuWindow.Options;
-                }
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-50, 100)), Global.Texts("About")))
-                {
-                    CurWin = MenuWindow.About;
-                }
-                Rect viewRect = new Rect(0, 0, Windows[windowID].rect.size.x - 170, 50 + 55 * Global.Servers.Count);
-                UIUtil.Label(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 125)), Global.Servers.Count.ToString() + " Servers");
-                scrollServersPosition = GUI.BeginScrollView(
-                    UIUtil.GetRect(new Vector2(Windows[windowID].rect.size.x - 150, Windows[windowID].rect.size.y - (175f + 60f)), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 175)),
-                    scrollServersPosition, viewRect);
-                {
-                    int i;
-                    for (i = 0; i < Global.Servers.Count; i++)
-                    {
-                        UIUtil.TextContainerTitle(UIUtil.GetRect(new Vector2(viewRect.width - 170, 50), PositionAnchor.LeftUp, viewRect.size, new Vector2(10, 20 + 55 * i)), Global.Servers[i].Name);
-                        if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(150, 50), PositionAnchor.RightUp, viewRect.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Connect")))
-                        {
-                            Debug.Log("Try to connect");
-                            Debug.Log("\t addres:" + Global.Servers[i].Address);
-                            Debug.Log("\t port:" + Global.Servers[i].Port);
-                            Debug.Log("\t name:" + Global.Servers[i].Name);
-                            Global.ConnectTo(i);
-                            CurWin = MenuWindow.Launch;
-                        }
-                    }
                 }
             }
             else
             {
-				if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 100)), Global.Texts("About")))
-				{
-					CurWin = MenuWindow.About;
-				}            
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 140)), Global.Texts("Options")))
-				{
-					langChanged = false;
-					CurWin = MenuWindow.Options;
-				}
-				Rect viewRect = new Rect(0, 0, Windows[windowID].rect.size.x - 170, 50 + 55 * Global.Servers.Count);
-				UIUtil.Label(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 165)), Global.Servers.Count.ToString() + " Servers");
-				scrollServersPosition = GUI.BeginScrollView(
-					UIUtil.GetRect(new Vector2(Windows[windowID].rect.size.x - 150, Windows[windowID].rect.size.y - (215f + 60f)), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 215)),
-					scrollServersPosition, viewRect);
-				{
-					int i;
-					for (i = 0; i < Global.Servers.Count; i++)
-					{
-                        UIUtil.TextContainerTitle(UIUtil.GetRect(new Vector2(viewRect.width - 20, 50), PositionAnchor.Up, viewRect.size, new Vector2(0, 15 + 55 * i)), Global.Servers[i].Name);
-                        if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(150, 50), PositionAnchor.Up, viewRect.size, new Vector2(0, 25 + 55 * i)), Global.Texts("Connect")))
-						{
-							Debug.Log("Try to connect");
-							Debug.Log("\t addres:" + Global.Servers[i].Address);
-							Debug.Log("\t port:" + Global.Servers[i].Port);
-							Debug.Log("\t name:" + Global.Servers[i].Name);
-							Global.ConnectTo(i);
-							CurWin = MenuWindow.Launch;
-						}
-					}
-				}
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 200)), Global.Texts("Desconnected"));
+            }
+            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 280)), Global.Texts("About")))
+            {
+                CurWin = MenuWindow.About;
+            }
+            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 340)), Global.Texts("Back")))
+            {
+                CurWin = MenuWindow.PutWord;
+            }
+        }
+
+        private void DrawListsW(int windowID)
+        {
+            UIUtil.WindowTitle(Windows[windowID], "Lists");
+            //words list
+            Rect viewRect1 = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 90, 50 + 55 * Global.keysList.Count);
+            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 145)), Global.Texts("Words"));
+            scrollWordsPosition = GUI.BeginScrollView(
+                UIUtil.GetRect(new Vector2(viewRect1.size.x + 20, Windows[windowID].rect.size.y - (175f + 110f)), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(30, 175)),
+                scrollWordsPosition, viewRect1);
+            {
+                int i;
+                for (i = 0; i < Global.Servers.Count; i++)
+                {
+                    UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(viewRect1.width - 170, 50), PositionAnchor.LeftUp, viewRect1.size, new Vector2(10, 20 + 55 * i)), Global.keysList[i]);
+                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(150, 50), PositionAnchor.RightUp, viewRect1.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+                    {
+                        Global.keysList.Remove(Global.keysList[i]);
+                    }
+                }
             }
             GUI.EndGroup();
+            //words list end
+        }
+
+        void DrawServersW(int windowID)
+        {
+            UIUtil.WindowTitle(Windows[windowID], "Connections");
+            if (Global.Connected)
+            {
+                UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(20, 110)), Global.Texts("Connected"));
+                //UIUtil.TextContainerTitle(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 50)), Global.Texts("Connected"));
+                ServerInfo current = Global.CurrentConnection;
+                UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-20, 110)), current.Name);
+            }
+            else
+            {
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 110)), Global.Texts("Disconnected"));
+            }
+            //servers list
+            Rect viewRect = new Rect(0, 0, Windows[windowID].rect.size.x - 170, 50 + 55 * Global.Servers.Count);
+            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 145)), Global.Servers.Count.ToString() + " Servers");
+            scrollServersPosition = GUI.BeginScrollView(
+                UIUtil.GetRect(new Vector2(Windows[windowID].rect.size.x - 150, Windows[windowID].rect.size.y - (175f + 110f)), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 175)),
+                scrollServersPosition, viewRect);
+            {
+                int i;
+                for (i = 0; i < Global.Servers.Count; i++)
+                {
+                    UIUtil.TextContainerTitle(UIUtil.GetRect(new Vector2(viewRect.width - 170, 50), PositionAnchor.LeftUp, viewRect.size, new Vector2(10, 20 + 55 * i)), Global.Servers[i].Name);
+                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(150, 50), PositionAnchor.RightUp, viewRect.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Connect")))
+                    {
+                        Global.ConnectTo(i);
+                        CurWin = MenuWindow.Admin;
+                    }
+                }
+            }
+            GUI.EndGroup();
+            //servers list end
+            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Back")))
+            {
+                CurWin = MenuWindow.Admin;
+            }
         }
         void DrawLaunchW(int windowID)
         {
-            UIUtil.WindowTitle(Windows[windowID], "Mobile");
+            UIUtil.WindowTitle(Windows[windowID], "WordDisplay");
             sendingWord = ValidString.ReplaceChar(GUI.TextField(UIUtil.GetRect(new Vector2(250, 60), PositionAnchor.Center, Windows[windowID].rect.size), sendingWord, 15), '#', '_');
             if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(250, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Send")))
 			{
-                Global.Send(sendingWord);
-                CurWin = MenuWindow.Main;
+                if (sendingWord == ConsolePass)
+                {
+                    CurWin = MenuWindow.Admin;
+                }
+                else
+                {
+                    Global.Send(sendingWord);
+                    CurWin = MenuWindow.Servers;
+                }
 			}
         }
         void DrawOptionsW(int windowID)
         {
             float fBuffer;
+            int iBuffer;
             UIUtil.WindowTitle(Windows[windowID], Global.Texts("Options"));
+
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 100, 340, 55));
+            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Duration") + " - " + Global.Duration);
+            fBuffer = Convert.ToSingle(Math.Round(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Duration, 0.2f, 10f), 1));
+            if (Global.Duration != fBuffer)
+                Global.Duration = fBuffer;
+            GUI.EndGroup();
+
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 165, 340, 55));
+            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Delay") + " - " + Global.Delay);
+            fBuffer = Convert.ToSingle(Math.Round(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Delay, 0.0f, 10f), 1));
+            if (Global.Delay != fBuffer)
+                Global.Delay = fBuffer;
+            GUI.EndGroup();
+
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 230, 340, 55));
+            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Sphere radius") + " - " + Global.Radius);
+            iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Radius, 10f, 1000f));
+            if (Global.Radius != iBuffer)
+                Global.Radius = iBuffer;
+            GUI.EndGroup();
+
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 295, 340, 75));
+            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Object radius") + " - " + Global.ObjectRadius);
+            iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.ObjectRadius, 1f, Global.Radius / 4));
+            if (iBuffer > Global.Radius / 4) iBuffer = Global.Radius / 4;
+            if (Global.ObjectRadius != iBuffer)
+                Global.ObjectRadius = iBuffer;
+            UIUtil.TextStyle2(new Rect(80, 55, 180, 20), Global.ObjectsInSphere(Global.Radius, Global.ObjectRadius).ToString() + " - objects");
+            GUI.EndGroup();
+
+            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 100, 360, 200, 90));
+            UIUtil.Label(new Rect(50, 0, 100, 20), Global.Texts("Server name"));
+            serverName = ValidString.ReplaceChar(GUI.TextField(new Rect(0, 30, 200, 56), serverName, 15), '#', '_');
+            if (serverName != Global.ServerName)
+            {
+                Global.ServerName = serverName;
+            }
+            GUI.EndGroup();
 
             string[] radios = new string[2];
             radios[0] = "English";
             radios[1] = "Русский";
             int radioSelected = (int)Global.Localisation;
-            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 110)));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.LeftDown, Windows[windowID].rect.size));
             UIUtil.Label(new Rect(0, 0, 100, 20), Global.Texts("Language"));
             radioSelected = UIUtil.ToggleList(new Rect(0, 40, 100, 74), radioSelected, radios);
             GUI.EndGroup();
@@ -219,19 +303,20 @@ namespace ITDmProject
                 langChanged = true;
             }
 
-            if (Global.SettingsSaved)
+            if (Global.DesctopSettingsSaved)
             {
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(UIUtil.Scaled(200), 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Back")))
+                if (UIUtil.ButtonBig(new Rect(Windows[windowID].CenterX - UIUtil.Scaled(100), Windows[windowID].Bottom - 100, UIUtil.Scaled(200), 50), Global.Texts("Back")))
                 {
-                    CurWin = MenuWindow.Main;
+                    CurWin = MenuWindow.Admin;
                     if (langChanged)
                         Global.LoadLocalisationTexts();
                 }
             }
             else
             {
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(UIUtil.Scaled(200), 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Save")))
+                if (UIUtil.ButtonBig(new Rect(Windows[windowID].CenterX - UIUtil.Scaled(100), Windows[windowID].Bottom - 100, UIUtil.Scaled(200), 50), Global.Texts("Save")))
                 {
+                    Global.PushSettings();
                     Global.SaveSettings();
                 }
             }
@@ -250,7 +335,7 @@ namespace ITDmProject
             }
             if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(UIUtil.Scaled(200), 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Back")))
             {
-                CurWin = MenuWindow.Main;
+                CurWin = MenuWindow.Servers;
             }
         }
     }

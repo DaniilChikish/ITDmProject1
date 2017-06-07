@@ -18,9 +18,9 @@ namespace ITDmProject
         private MotionController motor;
         public Material pointMat;
         private int iter;
-        public List<string> keys; //debug only
+        public List<string> keysList;
         private bool serverUp;
-        public bool ServerUp { get { return serverUp; }}
+        public bool ServerUp { get { return serverUp; } }
         private GameObject server;
         private NetworkManager manager;
         //storage
@@ -28,6 +28,7 @@ namespace ITDmProject
         private Stack<Quaternion> randRotations;
         //settings
         private SerializeSettingsDesktop settings;
+        public List<string> stopList;
         public bool SettingsSaved;
         public Languages Localisation
         {
@@ -100,8 +101,8 @@ namespace ITDmProject
         public int ObjectsInSphere(int sphereRad, int objRad)
         {
             float outp;
-            float V = 3f / 4f * Mathf.PI * Mathf.Pow(Radius, 3);
-            float v = 3f / 4f * Mathf.PI * Mathf.Pow(ObjectRadius, 3);
+            float V = 3f / 4f * Mathf.PI * Mathf.Pow(sphereRad, 3);
+            float v = 3f / 4f * Mathf.PI * Mathf.Pow(objRad, 3);
             outp = Mathf.Round(V / v / 4) - 1;
             if (outp > 1000) return 1000;
             else return Convert.ToInt32(outp);
@@ -113,17 +114,17 @@ namespace ITDmProject
         }
         //texts
         private Dictionary<string, string> texts;
-		public string Texts(string key)
-		{
-			if (texts.ContainsKey(key))
-				return texts[key];
+        public string Texts(string key)
+        {
+            if (texts.ContainsKey(key))
+                return texts[key];
             else return key;
-		}
+        }
         // Use this for initialization
         void OnEnable()
         {
             wordObjs = new Dictionary<string, Transform>();
-            keys = new List<string>();
+            keysList = new List<string>();
             randPositions = new Stack<Vector3>();
             randRotations = new Stack<Quaternion>();
             texts = new Dictionary<string, string>();
@@ -192,6 +193,7 @@ namespace ITDmProject
         {
             FullStorage();
             LoadWords();
+            LoadStopList();
             motor.duration = Duration;
             motor.delay = Delay;
 
@@ -209,7 +211,7 @@ namespace ITDmProject
         }
         public void SetServerUp()
         {
-			serverUp = true;
+            serverUp = true;
             Debug.Log("Up = " + ServerUp);
         }
         public void ServerDown()
@@ -225,9 +227,9 @@ namespace ITDmProject
             {
                 if (motor.targets.Count == 0)
                 {
-                    Capture(keys[iter]);
+                    Capture(keysList[iter]);
                     iter++;
-                    if (iter >= keys.Count)
+                    if (iter >= keysList.Count)
                         iter = 0;
                     //Debug.Log ("delta:" + Time.deltaTime);
                 }
@@ -236,95 +238,95 @@ namespace ITDmProject
 
         public void LoadLocalisationTexts()
         {
-			try
-			{           
-            switch (Application.platform)
+            try
             {
-                case RuntimePlatform.Android:
-                    {
-                        LoadLocalisationTextsAndroid();
-                        break;
-                    }
-                    default:
-                    {
-                        LoadLocalisationTextsDefault();
-                        break;
-                    }
-            }
-			}
-			catch (Exception)
-			{
-				texts = HardDefaultStorage.GetLocalisationDefault();
-			}
-        }
-        private void LoadLocalisationTextsAndroid()
-        {
-                string path = Path.Combine(Application.streamingAssetsPath, "local");
-                switch (Localisation)
+                switch (Application.platform)
                 {
-                    case Languages.English:
+                    case RuntimePlatform.Android:
                         {
-                            path = Path.Combine(path, "/eng/base_eng.xml");
+                            LoadLocalisationTextsAndroid();
                             break;
                         }
-                    case Languages.Russian:
+                    default:
                         {
-                            path = Path.Combine(path, "/rus/base_rus.xml");
-                            break;
-                        }
-                    case Languages.Default:
-                        {
-                            path += "/default.xml";
+                            LoadLocalisationTextsDefault();
                             break;
                         }
                 }
-                //SaveText();//debug only
-                //SerializeData<string, string> textsSer = new SerializeData<string, string>();
-                // передаем в конструктор тип класса
-                XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
-                // десериализация
-                Debug.Log("open - " + path);
-                FileStream fs = new FileStream(path, FileMode.Open);
-                SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
-                serialeze.OnAfterDeserialize();
-                Debug.Log(serialeze.ToString());
-                //Texts = new Dictionary<string, string>();
-                texts = serialeze.Data;
+            }
+            catch (Exception)
+            {
+                texts = HardDefaultStorage.GetLocalisationDefault();
+            }
+        }
+        private void LoadLocalisationTextsAndroid()
+        {
+            string path = Path.Combine(Application.streamingAssetsPath, "local");
+            switch (Localisation)
+            {
+                case Languages.English:
+                    {
+                        path = Path.Combine(path, "/eng/base_eng.xml");
+                        break;
+                    }
+                case Languages.Russian:
+                    {
+                        path = Path.Combine(path, "/rus/base_rus.xml");
+                        break;
+                    }
+                case Languages.Default:
+                    {
+                        path += "/default.xml";
+                        break;
+                    }
+            }
+            //SaveText();//debug only
+            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
+            // передаем в конструктор тип класса
+            XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
+            // десериализация
+            Debug.Log("open - " + path);
+            FileStream fs = new FileStream(path, FileMode.Open);
+            SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
+            serialeze.OnAfterDeserialize();
+            Debug.Log(serialeze.ToString());
+            //Texts = new Dictionary<string, string>();
+            texts = serialeze.Data;
         }
         private void LoadLocalisationTextsDefault()
         {
-			string path = Application.streamingAssetsPath + "/local";
-			switch (Localisation)
-			{
-				case Languages.English:
-					{
-						path += "/eng/base_eng.xml";
-						break;
-					}
-				case Languages.Russian:
-					{
-						path += "/rus/base_rus.xml";
-						break;
-					}
+            string path = Application.streamingAssetsPath + "/local";
+            switch (Localisation)
+            {
+                case Languages.English:
+                    {
+                        path += "/eng/base_eng.xml";
+                        break;
+                    }
+                case Languages.Russian:
+                    {
+                        path += "/rus/base_rus.xml";
+                        break;
+                    }
                 case Languages.Default:
-					{
-						path += "/temp.xml";
-						break;
-					}
-			}
-			//SaveText();//debug only
-			//SerializeData<string, string> textsSer = new SerializeData<string, string>();
-			// передаем в конструктор тип класса
-			XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
-			// десериализация
-			Debug.Log("open - " + path);
-			FileStream fs = new FileStream(path, FileMode.Open);
-			SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
-			serialeze.OnAfterDeserialize();
-			Debug.Log(serialeze.ToString());
-			//Texts = new Dictionary<string, string>();
-			texts = serialeze.Data;
-		}
+                    {
+                        path += "/temp.xml";
+                        break;
+                    }
+            }
+            //SaveText();//debug only
+            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
+            // передаем в конструктор тип класса
+            XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
+            // десериализация
+            Debug.Log("open - " + path);
+            FileStream fs = new FileStream(path, FileMode.Open);
+            SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
+            serialeze.OnAfterDeserialize();
+            Debug.Log(serialeze.ToString());
+            //Texts = new Dictionary<string, string>();
+            texts = serialeze.Data;
+        }
 
         private void FullStorage()
         {
@@ -382,7 +384,15 @@ namespace ITDmProject
 
             CreateWords(words);
         }
+        private void LoadStopList()
+        {
+            stopList.Clear();
 
+            string path = Application.streamingAssetsPath + "/stopList.dat";
+            string[] words = File.ReadAllLines(path);
+
+            stopList.AddRange(words);
+        }
         public void SaveWords()
         {
             //string[] wordArr = wordObjs.Keys;
@@ -390,7 +400,7 @@ namespace ITDmProject
         public void Clear()
         {
             wordObjs.Clear();
-            keys.Clear();
+            keysList.Clear();
             iter = 0;
             if (this.transform.childCount > 0)
             {
@@ -449,7 +459,7 @@ namespace ITDmProject
                 GameObject inW = Instantiate(wordPrefab, randPositions.Pop(), randRotations.Pop(), this.gameObject.transform);
 
                 inW.GetComponent<Word>().Instant(ID, text);
-                keys.Add(ID); //debug
+                keysList.Add(ID); //debug
                 wordObjs.Add(ID, inW.transform);
             }
             Debug.Log(text + " created as " + ID);
@@ -467,9 +477,24 @@ namespace ITDmProject
             if (wordObjs.ContainsKey(id))
                 motor.Capture(wordObjs[id]);
         }
+        public void SetWords(string[] words)
+        {
+            Clear();
+            CreateWords(words);
+        }
+        public void SetStopList(string[] stopList)
+        {
+            this.stopList.Clear();
+            this.stopList.AddRange(stopList);
+        }
+        private bool Allowed(string text)
+        {
+            return true;
+        }
         public void AddNCaptere(string text)
         {
-            Capture(CreateWord(text));
+            if (Allowed(text))
+                Capture(CreateWord(text));
         }
         private void OnApplicationQuit()
         {

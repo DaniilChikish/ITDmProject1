@@ -84,12 +84,14 @@
     <Compile Include="Assets\Scripts\DebugScreenRotator.cs" />
     <Compile Include="Assets\Scripts\GlobalControllerDesktop.cs" />
     <Compile Include="Assets\Scripts\GlobalControllerMobile.cs" />
+    <Compile Include="Assets\Scripts\HardDefaultStorage.cs" />
     <Compile Include="Assets\Scripts\MobileInterfaceEmulator.cs" />
     <Compile Include="Assets\Scripts\MotionController.cs" />
     <Compile Include="Assets\Scripts\NetBroadcastReciever.cs" />
     <Compile Include="Assets\Scripts\NetBroadcastTransmitter.cs" />
     <Compile Include="Assets\Scripts\NetMessageReciever.cs" />
     <Compile Include="Assets\Scripts\NetMessageTransmitter.cs" />
+    <Compile Include="Assets\Scripts\NetMessager.cs" />
     <Compile Include="Assets\Scripts\TextGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\DesktopMainMenu.cs" />
     <Compile Include="Assets\Scripts\UI\MobileMainMenu.cs" />
@@ -101,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Materials\3dText.shader" />
+    <None Include="Assets\Materials\TransparentShadow.shader" />
     <None Include="Assets\SpaceD\readme.txt" />
     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
     <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />

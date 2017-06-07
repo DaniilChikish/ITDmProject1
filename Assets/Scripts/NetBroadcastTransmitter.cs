@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 namespace ITDmProject
 {
-    public class NetBroadcastTransmitter : NetworkDiscovery
+    public class NetBroadcastTransmitter : NetworkDiscovery //desktop part
     {
         private GlobalControllerDesktop Global;
         // Use this for initialization

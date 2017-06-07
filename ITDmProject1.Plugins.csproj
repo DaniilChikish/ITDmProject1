@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Materials\3dText.shader" />
+    <None Include="Assets\Materials\TransparentShadow.shader" />
     <None Include="Assets\SpaceD\readme.txt" />
     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
     <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />

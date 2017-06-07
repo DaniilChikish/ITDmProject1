@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Practice0.unity
+- path: Assets/Mobile.unity
   isLoaded: 1
   isActive: 1

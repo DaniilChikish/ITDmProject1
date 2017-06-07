@@ -19,6 +19,16 @@ namespace ITDmProject
         //settings
         private SerializeSettingsMobile settings;
         public bool SettingsSaved;
+        public List<string> keysList;
+        public List<string> stopList;
+        public SerializeSettingsDesktop desctopSettings;
+        public bool DesctopSettingsSaved;
+        public bool Connected;
+        public ServerInfo CurrentConnection { get
+            {
+                return new ServerInfo(NetworkManager.singleton.networkAddress, NetworkManager.singleton.networkPort, settings.lastServerName);
+            }
+        }
         public Languages Localisation
         {
             get { return settings.localisation; }
@@ -38,7 +48,62 @@ namespace ITDmProject
             else return key;
         }
         //
-        void OnEnable()
+        public string ServerName
+        {
+            get { return desctopSettings.serverName; }
+            set
+            {
+                DesctopSettingsSaved = false;
+                desctopSettings.serverName = value;
+            }
+        }
+        public float Duration
+        {
+            get { return desctopSettings.duration; }
+            set
+            {
+                DesctopSettingsSaved = false;
+                desctopSettings.duration = value;
+            }
+        }
+        public float Delay
+        {
+            get { return desctopSettings.delay; }
+            set
+            {
+                DesctopSettingsSaved = false;
+                desctopSettings.delay = value;
+            }
+        }
+        public int Radius
+        {
+            get { return desctopSettings.sphereRadius; }
+            set
+            {
+                DesctopSettingsSaved = false;
+                desctopSettings.sphereRadius = value;
+            }
+        }
+        public int ObjectRadius
+        {
+            get { return desctopSettings.objectRadius; }
+            set
+            {
+                DesctopSettingsSaved = false;
+                desctopSettings.objectRadius = value;
+            }
+        }
+        public int ObjectsInSphere(int sphereRad, int objRad)
+        {
+            float outp;
+            float V = 3f / 4f * Mathf.PI * Mathf.Pow(sphereRad, 3);
+            float v = 3f / 4f * Mathf.PI * Mathf.Pow(objRad, 3);
+            outp = Mathf.Round(V / v / 4) - 1;
+            if (outp > 1000) return 1000;
+            else return Convert.ToInt32(outp);
+        }
+        //
+        private void OnEnable()
         {
             texts = new Dictionary<string, string>();
 			Debug.Log("Try to load settings.");
@@ -63,7 +128,7 @@ namespace ITDmProject
         {
             settings = new SerializeSettingsMobile();
             settings.localisation = Languages.English;
-
+            settings.lastServerName = "";
             SaveSettings();
         }
         public void LoadSettings()
@@ -94,7 +159,6 @@ namespace ITDmProject
             Servers = new List<ServerInfo>();
             RunClient();
         }
-
         private void Update()
         {
 
@@ -105,37 +169,68 @@ namespace ITDmProject
             if (broadcastReciever)
             {
                 Destroy(broadcastReciever);
-                Debug.Log("Existing reciever destriyed");
+                Debug.Log("Existing reciever destroyed");
             }
             GameObject body = new GameObject("reciever");
             this.gameObject.AddComponent<NetworkManager>();
             broadcastReciever = body.AddComponent<NetBroadcastReciever>();
+            if (settings.lastServerName!="")
+            {
+                ConnectTo(settings. lastServerName, settings.lastServerAddres, settings.lastServerPort);
+            }
         }
-        public void ConnectTo(int serverIndex)
+        public void ConnectTo(string name, string addres, int port)
         {
+            Debug.Log("Try to connect");
+            Debug.Log("\t addres:" + addres);
+            Debug.Log("\t port:" + port);
+            Debug.Log("\t name:" + name);
             if (!messageTransmitter)
             {
                 GameObject body = new GameObject("transmitter");
                 //body.AddComponent<NetworkManager>();
                 messageTransmitter = body.gameObject.AddComponent<NetMessageTransmitter>();
+                messageTransmitter.OpenConnection();
                 Debug.Log("Transmiter created");
             }
-            {
-                //    Destroy(messageTransmitter);
-                //	Debug.Log("Existing transmitter destriyed");
-            }
-            //if (NetworkManager.singleton.client.isConnected)
-            //{
-            //    NetworkManager.singleton.client.Disconnect();
-            //    Debug.Log("Axisting connection down");
-            //}
-            NetworkManager.singleton.networkAddress = Servers[serverIndex].Address;
-            NetworkManager.singleton.networkPort = Convert.ToInt16(Servers[serverIndex].Port);
+            if (NetworkManager.singleton.isNetworkActive)
+                NetworkManager.singleton.StopClient();
+            NetworkManager.singleton.networkAddress = addres;
+            NetworkManager.singleton.networkPort = port;
             NetworkManager.singleton.StartClient();
+            settings.lastServerName = name;
+        }
+        private void OnConnectedToServer()
+        {
+            Connected = true;
+            settings.lastServerAddres = NetworkManager.singleton.networkAddress;
+            settings.lastServerPort = NetworkManager.singleton.networkPort;
+
+            //get settings
+            messageTransmitter.GetData(NetMessager.Operation.Settings);
+            messageTransmitter.GetData(NetMessager.Operation.WordList);
+            messageTransmitter.GetData(NetMessager.Operation.StopList);
+        }
+        private void OnFailedToConnect(NetworkConnectionError error)
+        {
+            Debug.Log("Faild to connect. " + error.ToString());
+            settings.lastServerName = "";
+        }
+        public void ConnectTo(int serverIndex)
+        {
+            ConnectTo(Servers[serverIndex].Name, Servers[serverIndex].Address, Servers[serverIndex].Port);
         }
         public void Send(string word)
         {
             messageTransmitter.Send(word);
+        }
+        public void GetWordsList()
+        {
+            messageTransmitter.GetData(NetMessager.Operation.WordList);
+        }
+        public void PushSettings()
+        {
+            messageTransmitter.PutData(NetMessager.Operation.Settings);
         }
 
         public void LoadLocalisationTexts()
