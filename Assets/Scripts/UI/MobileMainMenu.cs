@@ -19,12 +19,19 @@ namespace ITDmProject
         UIWindowInfo[] Windows;
         private Vector2 scrollAboutPosition = Vector2.zero;
         private Vector2 scrollServersPosition = Vector2.zero;
-        private string serverName;
+        private Vector2 scrollWordsPosition = Vector2.zero;
+        private Vector2 scrollStopPosition = Vector2.zero;
+        private string newWordInput = "";
+        private string newStopInput = "";
+        private bool WordListChanged = false;
+        private bool StopListChanged = false;
+        private string serverNameInput;
         GlobalControllerMobile Global;
         bool langChanged;
         string sendingWord;
+        private float sentBackCount;
         private const string ConsolePass = "@deusaccess";
-        private Vector2 scrollWordsPosition;
+
 
         void Start()
         {
@@ -32,15 +39,14 @@ namespace ITDmProject
 
             Windows = new UIWindowInfo[2];
             sendingWord = "Input";
-            serverName = Global.ServerName;
+            //serverNameInput = Global.ServerName;
             //Windows[5] = new SDWindowInfo(new Rect(0, Screen.height-100, 100, 100));//info
-            if (Global.Connected)
                 CurWin = MenuWindow.PutWord;
-            else
-                CurWin = MenuWindow.Servers;
         }
         private void Update()
         {
+            if (sentBackCount > 0)
+                sentBackCount -= Time.deltaTime;
             //OrientAnalys();
             ScaleScreen();
         }
@@ -139,7 +145,7 @@ namespace ITDmProject
             {
                 CurWin = MenuWindow.Servers;
             }
-            if (Global.Connected)
+            if (Global.SettingsRecieved)
             {
                 if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 160)), Global.Texts("Lists")))
                 {
@@ -152,7 +158,7 @@ namespace ITDmProject
             }
             else
             {
-                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 200)), Global.Texts("Desconnected"));
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 200)), Global.Texts("No data"));
             }
             if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 280)), Global.Texts("About")))
             {
@@ -167,25 +173,91 @@ namespace ITDmProject
         private void DrawListsW(int windowID)
         {
             UIUtil.WindowTitle(Windows[windowID], "Lists");
+
             //words list
-            Rect viewRect1 = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 90, 50 + 55 * Global.keysList.Count);
-            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 145)), Global.Texts("Words"));
-            scrollWordsPosition = GUI.BeginScrollView(
-                UIUtil.GetRect(new Vector2(viewRect1.size.x + 20, Windows[windowID].rect.size.y - (175f + 110f)), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(30, 175)),
-                scrollWordsPosition, viewRect1);
+            Rect viewRectLeft = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 110, 50 + 55 * Global.wordList.Count);
+            Rect scrollRectLeft = UIUtil.GetRect(new Vector2(viewRectLeft.size.x + 20, Windows[windowID].rect.size.y - (135f + 110f)), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 135));
+            if (Global.WordListRecieved)
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.size.x, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Words list"));
+            else
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.size.x, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Words list no data"));
+            scrollWordsPosition = GUI.BeginScrollView(scrollRectLeft, scrollWordsPosition, viewRectLeft);
             {
                 int i;
-                for (i = 0; i < Global.Servers.Count; i++)
+                for (i = 0; i < Global.wordList.Count; i++)
                 {
-                    UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(viewRect1.width - 170, 50), PositionAnchor.LeftUp, viewRect1.size, new Vector2(10, 20 + 55 * i)), Global.keysList[i]);
-                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(150, 50), PositionAnchor.RightUp, viewRect1.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+                    UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectLeft.size, new Vector2(10, 20 + 55 * i)), Global.wordList[i]);
+                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectLeft.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
                     {
-                        Global.keysList.Remove(Global.keysList[i]);
+                        Global.wordList.Remove(Global.wordList[i]);
+                        WordListChanged = true;
+                        i--;
                     }
+                }
+                newWordInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectLeft.size, new Vector2(10, 5 + 55 * i)), newWordInput);
+                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectLeft.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+                {
+                    Global.wordList.Add(newWordInput);
+					scrollWordsPosition.y += 55;
+					newWordInput = "";
+                    WordListChanged = true;
                 }
             }
             GUI.EndGroup();
             //words list end
+
+            //stop list
+            Rect viewRectRight = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 110, 50 + 55 * Global.stopList.Count);
+            Rect scrollRectRight = UIUtil.GetRect(new Vector2(viewRectRight.size.x + 20, Windows[windowID].rect.size.y - (135f + 110f)), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 135));
+            if (Global.StopListRecieved)
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectRight.size.x, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), Global.Texts("Stop list"));
+            else
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectRight.size.x, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), Global.Texts("Stop list no data"));
+            scrollStopPosition = GUI.BeginScrollView(scrollRectRight, scrollStopPosition, viewRectRight);
+            {
+                int i;
+                for (i = 0; i < Global.stopList.Count; i++)
+                {
+                    UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectRight.size, new Vector2(10, 20 + 55 * i)), Global.stopList[i]);
+                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectRight.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+                    {
+                        Global.stopList.Remove(Global.stopList[i]);
+                        StopListChanged = true;
+                        i--;
+                    }
+                }
+                newStopInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectRight.size, new Vector2(10, 5 + 55 * i)), newStopInput);
+                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectRight.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+                {
+                    Global.stopList.Add(newStopInput);
+                    scrollStopPosition.y += 55;
+                    StopListChanged = true;
+                    newStopInput = "";
+                }
+            }
+            GUI.EndGroup();
+            //stop list end
+            if (WordListChanged||StopListChanged)
+            {
+                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Regenerate")))
+                {
+                    if (WordListChanged)
+                    {
+                        Global.PushWordsList();
+                        WordListChanged = false;
+                    }
+                    if (StopListChanged)
+                    {
+                        Global.PushStopList();
+                        StopListChanged = false;
+                    }
+                }
+            }
+            else 
+            {
+                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Back")))
+                    CurWin = MenuWindow.Admin;
+			}
         }
 
         void DrawServersW(int windowID)
@@ -193,10 +265,10 @@ namespace ITDmProject
             UIUtil.WindowTitle(Windows[windowID], "Connections");
             if (Global.Connected)
             {
-                UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(20, 110)), Global.Texts("Connected"));
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Connected"));
                 //UIUtil.TextContainerTitle(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 50)), Global.Texts("Connected"));
                 ServerInfo current = Global.CurrentConnection;
-                UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-20, 110)), current.Name);
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), current.Name);
             }
             else
             {
@@ -230,70 +302,73 @@ namespace ITDmProject
         void DrawLaunchW(int windowID)
         {
             UIUtil.WindowTitle(Windows[windowID], "WordDisplay");
-            sendingWord = ValidString.ReplaceChar(GUI.TextField(UIUtil.GetRect(new Vector2(250, 60), PositionAnchor.Center, Windows[windowID].rect.size), sendingWord, 15), '#', '_');
+            GUIStyle local = new GUIStyle(Skin.GetStyle("TextField"));
+            local.fontSize = 26;
+            sendingWord = ValidString.ReplaceChar(GUI.TextField(UIUtil.GetRect(new Vector2(250, 60), PositionAnchor.Center, Windows[windowID].rect.size), sendingWord, 15, local), '#', '_');
+            if (sentBackCount > 0)
+                UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(50, 20), PositionAnchor.Center, Windows[windowID].rect.size, new Vector2(100, 45)), Global.Texts("Sent"));
             if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(250, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Send")))
-			{
+            {
                 if (sendingWord == ConsolePass)
                 {
                     CurWin = MenuWindow.Admin;
                 }
                 else
                 {
-                    Global.Send(sendingWord);
-                    CurWin = MenuWindow.Servers;
+                    if (Global.Connected)
+                    {
+                        Global.Send(sendingWord);
+                        sentBackCount = 5;
+                    }
                 }
-			}
+            }
         }
         void DrawOptionsW(int windowID)
         {
             float fBuffer;
             int iBuffer;
             UIUtil.WindowTitle(Windows[windowID], Global.Texts("Options"));
-
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 100, 340, 55));
-            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Duration") + " - " + Global.Duration);
-            fBuffer = Convert.ToSingle(Math.Round(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Duration, 0.2f, 10f), 1));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(300, 55), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 100)));
+            UIUtil.Label(new Rect(50, 0, 200, 20), Global.Texts("Duration") + " - " + Global.Duration);
+            fBuffer = Convert.ToSingle(Math.Round(GUI.HorizontalSlider(new Rect(0, 40, 300, 13), Global.Duration, 0.2f, 10f), 1));
             if (Global.Duration != fBuffer)
                 Global.Duration = fBuffer;
             GUI.EndGroup();
 
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 165, 340, 55));
-            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Delay") + " - " + Global.Delay);
-            fBuffer = Convert.ToSingle(Math.Round(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Delay, 0.0f, 10f), 1));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(300, 55), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 100)));
+            UIUtil.Label(new Rect(50, 0, 200, 20), Global.Texts("Delay") + " - " + Global.Delay);
+            fBuffer = Convert.ToSingle(Math.Round(GUI.HorizontalSlider(new Rect(0, 40, 300, 13), Global.Delay, 0.0f, 10f), 1));
             if (Global.Delay != fBuffer)
                 Global.Delay = fBuffer;
             GUI.EndGroup();
 
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 230, 340, 55));
-            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Sphere radius") + " - " + Global.Radius);
-            iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.Radius, 10f, 1000f));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(300, 55), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 165)));
+            UIUtil.Label(new Rect(50, 0, 200, 20), Global.Texts("Sphere radius") + " - " + Global.Radius);
+            iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 300, 13), Global.Radius, 10f, 1000f));
             if (Global.Radius != iBuffer)
                 Global.Radius = iBuffer;
             GUI.EndGroup();
 
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 170, 295, 340, 75));
-            UIUtil.Label(new Rect(120, 0, 100, 20), Global.Texts("Object radius") + " - " + Global.ObjectRadius);
-            iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 340, 13), Global.ObjectRadius, 1f, Global.Radius / 4));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(300, 55), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 165)));
+            UIUtil.Label(new Rect(50, 0, 200, 20), Global.Texts("Object radius") + " - " + Global.ObjectRadius);
+            iBuffer = Mathf.RoundToInt(GUI.HorizontalSlider(new Rect(0, 40, 300, 13), Global.ObjectRadius, 1f, Global.Radius / 4));
             if (iBuffer > Global.Radius / 4) iBuffer = Global.Radius / 4;
             if (Global.ObjectRadius != iBuffer)
                 Global.ObjectRadius = iBuffer;
-            UIUtil.TextStyle2(new Rect(80, 55, 180, 20), Global.ObjectsInSphere(Global.Radius, Global.ObjectRadius).ToString() + " - objects");
-            GUI.EndGroup();
+			GUI.EndGroup();
 
-            GUI.BeginGroup(new Rect(Windows[windowID].CenterX - 100, 360, 200, 90));
-            UIUtil.Label(new Rect(50, 0, 100, 20), Global.Texts("Server name"));
-            serverName = ValidString.ReplaceChar(GUI.TextField(new Rect(0, 30, 200, 56), serverName, 15), '#', '_');
-            if (serverName != Global.ServerName)
-            {
-                Global.ServerName = serverName;
-            }
+            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(200, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 230) ), Global.ObjectsInSphere(Global.Radius, Global.ObjectRadius).ToString() + " - objects");
+
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(300, 90), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 250)));
+            UIUtil.Label(new Rect(50, 0, 200, 20), Global.Texts("Server name"));
+            GUI.TextField(new Rect(0, 30, 300, 50), Global.ServerName);
             GUI.EndGroup();
 
             string[] radios = new string[2];
             radios[0] = "English";
             radios[1] = "Русский";
             int radioSelected = (int)Global.Localisation;
-            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.LeftDown, Windows[windowID].rect.size));
+            GUI.BeginGroup(UIUtil.GetRect(new Vector2(100, 110), PositionAnchor.LeftDown, Windows[windowID].rect.size, new Vector2(70, -100)));
             UIUtil.Label(new Rect(0, 0, 100, 20), Global.Texts("Language"));
             radioSelected = UIUtil.ToggleList(new Rect(0, 40, 100, 74), radioSelected, radios);
             GUI.EndGroup();

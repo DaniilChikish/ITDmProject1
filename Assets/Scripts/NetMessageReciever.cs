@@ -61,63 +61,67 @@ namespace ITDmProject
         }
         private void SendAnswer(Operation oper, int connectionId)
         {
-            StringMessage message = new StringMessage();
-            string data;
+            StringMessage data;
             switch (oper)
             {
                 case Operation.WordList:
                     {
                         data = WordsListString();
-                        NetworkServer.SendToClient(connectionId, WordListData, message); break;
+                        NetworkServer.SendToClient(connectionId, WordListData, data); break;
                     }
                 case Operation.StopList:
                     {
                         data = StopListString();
-                        NetworkServer.SendToClient(connectionId, StopListData, message); break;
+                        NetworkServer.SendToClient(connectionId, StopListData, data); break;
                     }
                 case Operation.Settings:
                     {
                         data = SettingsString();
-                        NetworkServer.SendToClient(connectionId, SettingsData, message); break;
+                        NetworkServer.SendToClient(connectionId, SettingsData, data); break;
                     }
             }
         }
-        private string WordsListString()
+        private StringMessage WordsListString()
         {
             StringBuilder outp = new StringBuilder("words");
             foreach(string x in Global.keysList)
             {
-                outp.Append("#" + x);
+                outp.Append("#" + x.Split('_')[0]);
             }
-            return outp.ToString();
-        }
-        private string StopListString()
+			return new StringMessage(outp.ToString());
+		}
+        private StringMessage StopListString()
         {
             StringBuilder outp = new StringBuilder("stop");
             foreach (string x in Global.stopList)
             {
                 outp.Append("#" + x);
             }
-            return outp.ToString();
+            return new StringMessage(outp.ToString());
         }
-        private string SettingsString()
+        private StringMessage SettingsString()
         {
             StringBuilder outp = new StringBuilder("settings");
             outp.Append("#" + Global.Duration);
             outp.Append("#" + Global.Delay);
             outp.Append("#" + Global.Radius);
             outp.Append("#" + Global.ObjectRadius);
-            return outp.ToString();
-        }
+            outp.Append("#" + Global.ServerName);
+			return new StringMessage(outp.ToString());
+		}
         private void WordListDataHandler(NetworkMessage message)
         {
             string[] data = message.ReadMessage<StringMessage>().value.Split('#');
-            Global.SetWords(data);
+            List<string> buff = new List<string>(data);
+            buff.Remove(buff[0]);
+            Global.SetWords(buff.ToArray());
         }
         private void StopListDataHandler(NetworkMessage message)
         {
             string[] data = message.ReadMessage<StringMessage>().value.Split('#');
-            Global.SetStopList(data);
+			List<string> buff = new List<string>(data);
+			buff.Remove(buff[0]);
+            Global.SetStopList(buff.ToArray());
         }
         private void SettingsUpdateHandler(NetworkMessage message)
         {
@@ -126,12 +130,15 @@ namespace ITDmProject
             Global.Delay = Convert.ToSingle(data[2]);
             Global.Radius = Convert.ToInt32(data[3]);
             Global.ObjectRadius = Convert.ToInt32(data[4]);
+            Global.ServerName = data[5];
             Global.SaveSettings();
         }
 
         private void OnAddPlayer(NetworkMessage netMsg)
 		{
-            Debug.Log("Resieve 'AddPlayer' Msg");
+            Debug.Log("Clint " + netMsg.conn.address + " connected.");
+            StringMessage ansver = new StringMessage("OK");
+            NetworkServer.SendToClient(netMsg.conn.connectionId, MsgType.Connect, ansver);
 		}
 
         public void CreateWord(string word)

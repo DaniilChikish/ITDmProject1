@@ -15,6 +15,7 @@ namespace ITDmProject
     {
         public Dictionary<string, Transform> wordObjs;
         public GameObject wordPrefab;
+        private GameObject mainSphere;
         private MotionController motor;
         public Material pointMat;
         private int iter;
@@ -223,14 +224,14 @@ namespace ITDmProject
 
         private void Update()
         {
-            if (ServerUp)
+            if (ServerUp && keysList.Count > 0)
             {
                 if (motor.targets.Count == 0)
                 {
-                    Capture(keysList[iter]);
-                    iter++;
                     if (iter >= keysList.Count)
                         iter = 0;
+                    Capture(keysList[iter]);
+                    iter++;
                     //Debug.Log ("delta:" + Time.deltaTime);
                 }
             }
@@ -331,7 +332,9 @@ namespace ITDmProject
         private void FullStorage()
         {
             int maxP = MaxPoints;
-            GameObject mainSphere = new GameObject("mainSphere");
+            if (mainSphere)
+                Destroy(mainSphere);
+            mainSphere = new GameObject("mainSphere");
             mainSphere.transform.position = Vector3.zero;
 
             double[] randPosXArr = Randomizer.Uniform(-Radius, Radius, maxP * 6);
@@ -352,6 +355,7 @@ namespace ITDmProject
                 Quaternion rotation = new Quaternion();
                 do
                 {
+                    if (i > randPosXArr.Length) maxP = 0;
                     position.x = Convert.ToSingle(randPosXArr[i]);
                     position.y = Convert.ToSingle(randPosYArr[i]);
                     position.z = Convert.ToSingle(randPosZArr[i]);
@@ -395,8 +399,18 @@ namespace ITDmProject
         }
         public void SaveWords()
         {
-            //string[] wordArr = wordObjs.Keys;
-        }
+			string path = Application.streamingAssetsPath + "/words.dat";
+            List<string> data = new List<string>();
+            foreach (string x in keysList)
+                data.Add(x.Split('_')[0]);
+            
+            File.WriteAllLines(path, data.ToArray());
+		}
+        public void SaveStopList()
+        {
+			string path = Application.streamingAssetsPath + "/stopList.dat";
+            File.WriteAllLines(path, stopList.ToArray());
+		}
         public void Clear()
         {
             wordObjs.Clear();
@@ -412,41 +426,6 @@ namespace ITDmProject
                 }
             }
         }
-
-        //public void CreateWords(string[] words)
-        //{
-        //    double[] randPosArr = Randomizer.Uniform(-Radius, Radius, words.Length * 9);
-        //    double[] randRotArr = Randomizer.Uniform(0, 360, words.Length * 3);
-        //    int i = 0;
-        //    int j = 0;
-        //    string ID;
-        //    Vector3 position = new Vector3(0, 0, 0);
-        //    Quaternion rotation = new Quaternion();
-        //    Transform parent = this.gameObject.transform;
-        //    foreach (string w in words)
-        //    {
-        //        do
-        //        {
-        //            position.x = Convert.ToSingle(randPosArr[i]);
-        //            position.y = Convert.ToSingle(randPosArr[i + 1]);
-        //            position.z = Convert.ToSingle(randPosArr[i + 2]);
-        //            i += 1;
-        //        } while ((Vector3.Distance(position, this.transform.position) > Radius) && (Physics.OverlapSphere(position, 7).Length == 0));
-        //        i += 2;
-        //        rotation.x = Convert.ToSingle(randRotArr[j]);
-        //        rotation.y = Convert.ToSingle(randRotArr[j + 1]);
-        //        rotation.z = Convert.ToSingle(randRotArr[j + 2]);
-        //        j += 3;
-
-        //        ID = w + "_" + position.GetHashCode().ToString();
-
-        //        GameObject inW = Instantiate(wordPrefab, position, rotation, parent);
-
-        //        inW.GetComponent<Word>().Instant(ID, w);
-        //        keys.Add(ID); //debug
-        //        wordObjs.Add(ID, inW.transform);
-        //    }
-        //}
         private string CreateWord(string text)
         {
             string ID = "";
@@ -489,6 +468,11 @@ namespace ITDmProject
         }
         private bool Allowed(string text)
         {
+            foreach (string x in stopList)
+            {
+                if (text.IndexOf(x) != -1)
+                    return false;
+            }
             return true;
         }
         public void AddNCaptere(string text)
@@ -498,6 +482,9 @@ namespace ITDmProject
         }
         private void OnApplicationQuit()
         {
+            SaveWords();
+            SaveStopList();
+            //SaveSettings();
             ServerDown();
         }
     }

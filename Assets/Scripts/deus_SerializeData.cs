@@ -60,7 +60,6 @@ namespace DeusUtility.Serialization
 	public class SerializeSettingsMobile
 	{
 		public Languages localisation;
-        public string lastServerName;
         public string lastServerAddres;
         public int lastServerPort;
 	}

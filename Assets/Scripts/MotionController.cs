@@ -37,6 +37,11 @@ namespace ITDmProject
             if (backCount > 0)
                 backCount -= Time.deltaTime;
             alive += Time.deltaTime;
+            if (targets.Count > 0 && targets.Peek() == null)
+            {
+				targets.Dequeue();
+				Status = MotorState.Free;
+            }
             switch (Status)
             {
                 case MotorState.Move:

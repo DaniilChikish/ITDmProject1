@@ -19,14 +19,19 @@ namespace ITDmProject
         //settings
         private SerializeSettingsMobile settings;
         public bool SettingsSaved;
-        public List<string> keysList;
+        public List<string> wordList;
         public List<string> stopList;
         public SerializeSettingsDesktop desctopSettings;
         public bool DesctopSettingsSaved;
         public bool Connected;
-        public ServerInfo CurrentConnection { get
+        public bool SettingsRecieved;
+        public bool WordListRecieved;
+        public bool StopListRecieved;
+        public ServerInfo CurrentConnection
+        {
+            get
             {
-                return new ServerInfo(NetworkManager.singleton.networkAddress, NetworkManager.singleton.networkPort, settings.lastServerName);
+                return new ServerInfo(NetworkManager.singleton.networkAddress, NetworkManager.singleton.networkPort, ServerName);
             }
         }
         public Languages Localisation
@@ -106,10 +111,10 @@ namespace ITDmProject
         private void OnEnable()
         {
             texts = new Dictionary<string, string>();
-			Debug.Log("Try to load settings.");
-			LoadSettings();
-			Debug.Log("Try to load localisation.");
-			LoadLocalisationTexts();
+            Debug.Log("Try to load settings.");
+            LoadSettings();
+            Debug.Log("Try to load localisation.");
+            LoadLocalisationTexts();
         }
 
         public void SaveSettings()
@@ -128,8 +133,9 @@ namespace ITDmProject
         {
             settings = new SerializeSettingsMobile();
             settings.localisation = Languages.English;
-            settings.lastServerName = "";
-            SaveSettings();
+            settings.lastServerAddres = "";
+            settings.lastServerPort = 0;
+            //SaveSettings();
         }
         public void LoadSettings()
         {
@@ -173,13 +179,13 @@ namespace ITDmProject
             }
             GameObject body = new GameObject("reciever");
             this.gameObject.AddComponent<NetworkManager>();
-            broadcastReciever = body.AddComponent<NetBroadcastReciever>();
-            if (settings.lastServerName!="")
+			broadcastReciever = body.AddComponent<NetBroadcastReciever>(); 
+            if (settings.lastServerAddres != "" && settings.lastServerPort != 0)
             {
-                ConnectTo(settings. lastServerName, settings.lastServerAddres, settings.lastServerPort);
+                ConnectTo(settings.lastServerAddres, settings.lastServerPort);
             }
         }
-        public void ConnectTo(string name, string addres, int port)
+        public void ConnectTo(string addres, int port)
         {
             Debug.Log("Try to connect");
             Debug.Log("\t addres:" + addres);
@@ -190,7 +196,6 @@ namespace ITDmProject
                 GameObject body = new GameObject("transmitter");
                 //body.AddComponent<NetworkManager>();
                 messageTransmitter = body.gameObject.AddComponent<NetMessageTransmitter>();
-                messageTransmitter.OpenConnection();
                 Debug.Log("Transmiter created");
             }
             if (NetworkManager.singleton.isNetworkActive)
@@ -198,31 +203,38 @@ namespace ITDmProject
             NetworkManager.singleton.networkAddress = addres;
             NetworkManager.singleton.networkPort = port;
             NetworkManager.singleton.StartClient();
-            settings.lastServerName = name;
         }
-        private void OnConnectedToServer()
+        public void OnConnectedToServer()
         {
+            Debug.Log("Main Connected.");
             Connected = true;
             settings.lastServerAddres = NetworkManager.singleton.networkAddress;
             settings.lastServerPort = NetworkManager.singleton.networkPort;
-
-            //get settings
-            messageTransmitter.GetData(NetMessager.Operation.Settings);
-            messageTransmitter.GetData(NetMessager.Operation.WordList);
-            messageTransmitter.GetData(NetMessager.Operation.StopList);
+            messageTransmitter.OpenConnection();
+            GetData();
         }
         private void OnFailedToConnect(NetworkConnectionError error)
         {
             Debug.Log("Faild to connect. " + error.ToString());
-            settings.lastServerName = "";
         }
         public void ConnectTo(int serverIndex)
         {
-            ConnectTo(Servers[serverIndex].Name, Servers[serverIndex].Address, Servers[serverIndex].Port);
+            ConnectTo(Servers[serverIndex].Address, Servers[serverIndex].Port);
         }
         public void Send(string word)
         {
+            wordList.Add(word);
             messageTransmitter.Send(word);
+        }
+        public void GetData()
+        {
+            if (!SettingsRecieved)
+                messageTransmitter.GetData(NetMessager.Operation.Settings);
+            else if (!WordListRecieved)
+                messageTransmitter.GetData(NetMessager.Operation.WordList);
+            else if (!StopListRecieved)
+                messageTransmitter.GetData(NetMessager.Operation.StopList);
+            else return;
         }
         public void GetWordsList()
         {
@@ -230,15 +242,23 @@ namespace ITDmProject
         }
         public void PushSettings()
         {
-            messageTransmitter.PutData(NetMessager.Operation.Settings);
+            DesctopSettingsSaved = true;
+            messageTransmitter.PushData(NetMessager.Operation.Settings);
         }
-
+        public void PushWordsList()
+        {
+            messageTransmitter.PushData(NetMessager.Operation.WordList);
+        }
+        public void PushStopList()
+        {
+            messageTransmitter.PushData(NetMessager.Operation.StopList);
+        }
         public void LoadLocalisationTexts()
         {
             try
             {
-				Debug.Log("platform - " + Application.platform);
-				switch (Application.platform)
+                Debug.Log("platform - " + Application.platform);
+                switch (Application.platform)
                 {
                     case RuntimePlatform.Android:
                         {
@@ -324,6 +344,11 @@ namespace ITDmProject
             Debug.Log(serialeze.ToString());
             //texts = new Dictionary<string, string>();
             texts = serialeze.Data;
+        }
+        private void OnApplicationQuit()
+        {
+            Debug.Log("Settings saved on quit.");
+            SaveSettings();
         }
     }
 }

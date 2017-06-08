@@ -18,11 +18,11 @@ namespace ITDmProject
         {
             Initialize();
             StartAsClient();
-            Debug.Log("Broadcast client started");
+            Debug.Log("Broadcast client started.");
         }
         private void OnConnectedToServer()
         {
-			Debug.Log("Connected");
+			Debug.Log("Broadcast Connected.");
         }
         public override void OnReceivedBroadcast(string fromAddress, string data)
         {
