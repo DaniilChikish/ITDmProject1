@@ -37,7 +37,7 @@ namespace ITDmProject
         {
             Global = FindObjectOfType<GlobalControllerMobile>();
 
-            Windows = new UIWindowInfo[2];
+            Windows = new UIWindowInfo[3];
             sendingWord = "Input";
             //serverNameInput = Global.ServerName;
             //Windows[5] = new SDWindowInfo(new Rect(0, Screen.height-100, 100, 100));//info
@@ -47,7 +47,7 @@ namespace ITDmProject
         {
             if (sentBackCount > 0)
                 sentBackCount -= Time.deltaTime;
-            //OrientAnalys();
+            OrientAnalys();
             ScaleScreen();
         }
         public void OrientAnalys()
@@ -81,6 +81,7 @@ namespace ITDmProject
                         mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
                         Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(16, 9), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
                         Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
+                        Windows[2] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(6.8f, 8.4f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//admin
                         break;
                     }
                 case DeusUtility.UI.ScreenOrientation.Portrait:
@@ -89,7 +90,8 @@ namespace ITDmProject
                         mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
                         Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(9, 16), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
                         Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
-                        break;
+						Windows[2] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(6.8f, 8.4f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//admin
+						break;
                     }
             }
         }
@@ -108,7 +110,7 @@ namespace ITDmProject
                         }
                     case MenuWindow.Admin:
                         {
-                            GUI.Window(0, Windows[0].rect, DrawAdminW, "");
+                            GUI.Window(2, Windows[2].rect, DrawAdminW, "");
                             break;
                         }
                     case MenuWindow.Servers:

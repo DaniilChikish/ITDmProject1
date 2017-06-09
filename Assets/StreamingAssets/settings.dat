@@ -6,6 +6,6 @@
   <serverName>Mac-mini-Admin.local</serverName>
   <sphereRadius>100</sphereRadius>
   <objectRadius>14</objectRadius>
-  <duration>1.5</duration>
-  <delay>3</delay>
+  <duration>3</duration>
+  <delay>2</delay>
 </SerializeSettingsDesktop>

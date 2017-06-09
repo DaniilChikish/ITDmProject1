@@ -119,6 +119,34 @@ namespace ITDmProject
 
         public void SaveSettings()
         {
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    {
+                        SaveSettingsAndroid();
+                        break;
+                    }
+                default:
+                    {
+                        SaveSettingsDefault();
+                        break;
+                    }
+            }
+        }
+        private void SaveSettingsAndroid()
+        {
+            XmlSerializer formatter = new XmlSerializer(typeof(SerializeSettingsMobile));
+            string path = Application.persistentDataPath + "/settingsMobile.dat";
+            // получаем поток, куда будем записывать сериализованный объект
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
+                formatter.Serialize(fs, settings);
+            }
+            SettingsSaved = true;
+            Debug.Log(path + " - saved");
+        }
+        private void SaveSettingsDefault()
+        {
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeSettingsMobile));
             string path = Application.streamingAssetsPath + "/settingsMobile.dat";
             // получаем поток, куда будем записывать сериализованный объект
@@ -138,6 +166,44 @@ namespace ITDmProject
             //SaveSettings();
         }
         public void LoadSettings()
+        {
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    {
+                        LoadSettingsAndroid();
+                        break;
+                    }
+                default:
+                    {
+                        LoadSettingsDefault();
+                        break;
+                    }
+            }
+        }
+        private void LoadSettingsAndroid()
+        {
+            Debug.Log("Load settings");
+
+            string path = Application.persistentDataPath + "/settingsMobile.dat";
+            // передаем в конструктор тип класса
+            XmlSerializer formatter = new XmlSerializer(typeof(SerializeSettingsMobile));
+            // десериализация
+            try
+            {
+                FileStream fs = new FileStream(path, FileMode.Open);
+                settings = (SerializeSettingsMobile)formatter.Deserialize(fs);
+                Debug.Log(path + " - ok");
+                fs.Close();
+            }
+            catch (Exception)
+            {
+                Debug.Log("Set default");
+                SetDefault();
+            }
+            SettingsSaved = true;
+        }
+        private void LoadSettingsDefault()
         {
             Debug.Log("Load settings");
 
@@ -179,7 +245,7 @@ namespace ITDmProject
             }
             GameObject body = new GameObject("reciever");
             this.gameObject.AddComponent<NetworkManager>();
-			broadcastReciever = body.AddComponent<NetBroadcastReciever>(); 
+            broadcastReciever = body.AddComponent<NetBroadcastReciever>();
             if (settings.lastServerAddres != "" && settings.lastServerPort != 0)
             {
                 ConnectTo(settings.lastServerAddres, settings.lastServerPort);
@@ -279,7 +345,7 @@ namespace ITDmProject
         }
         private void LoadLocalisationTextsAndroid()
         {
-            string path = Path.Combine(Application.streamingAssetsPath, "local");
+            string path = Path.Combine(Application.persistentDataPath, "local");
             switch (Localisation)
             {
                 case Languages.English:
