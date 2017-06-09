@@ -24,6 +24,11 @@ namespace ITDmProject
             if (!Global.Connected)
                 Global.OnConnectedToServer();
         }
+        private void OnDisconnectedFromServer(NetworkDisconnection info)
+        {
+            Debug.Log(info);
+            Global.Reconnect();
+        }
         public void OpenConnection()
         {
 			NetworkManager.singleton.client.RegisterHandler(PutWord, PutWordHandler);

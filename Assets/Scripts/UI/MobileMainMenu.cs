@@ -175,70 +175,143 @@ namespace ITDmProject
         private void DrawListsW(int windowID)
         {
             UIUtil.WindowTitle(Windows[windowID], "Lists");
-
-            //words list
-            Rect viewRectLeft = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 110, 50 + 55 * Global.wordList.Count);
-            Rect scrollRectLeft = UIUtil.GetRect(new Vector2(viewRectLeft.size.x + 20, Windows[windowID].rect.size.y - (135f + 110f)), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 135));
-            if (Global.WordListRecieved)
-                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.size.x, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Words list"));
-            else
-                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.size.x, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Words list no data"));
-            scrollWordsPosition = GUI.BeginScrollView(scrollRectLeft, scrollWordsPosition, viewRectLeft);
+            switch (orientation)
             {
-                int i;
-                for (i = 0; i < Global.wordList.Count; i++)
-                {
-                    UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectLeft.size, new Vector2(10, 20 + 55 * i)), Global.wordList[i]);
-                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectLeft.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+                case DeusUtility.UI.ScreenOrientation.Landscape:
                     {
-                        Global.wordList.Remove(Global.wordList[i]);
-                        WordListChanged = true;
-                        i--;
-                    }
-                }
-                newWordInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectLeft.size, new Vector2(10, 5 + 55 * i)), newWordInput);
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectLeft.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
-                {
-                    Global.wordList.Add(newWordInput);
-					scrollWordsPosition.y += 55;
-					newWordInput = "";
-                    WordListChanged = true;
-                }
-            }
-            GUI.EndGroup();
-            //words list end
+                        //words list
+                        Rect viewRectLeft = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 110, 50 + 55 * Global.wordList.Count);
+                        Rect scrollRectLeft = UIUtil.GetRect(new Vector2(viewRectLeft.size.x + 20, Windows[windowID].rect.size.y - (135f + 110f)), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 135));
+                        if (Global.WordListRecieved)
+                            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.size.x, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Words list"));
+                        else
+                            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.size.x, 20), PositionAnchor.LeftUp, Windows[windowID].rect.size, new Vector2(70, 110)), Global.Texts("Words list no data"));
+                        scrollWordsPosition = GUI.BeginScrollView(scrollRectLeft, scrollWordsPosition, viewRectLeft);
+                        {
+                            int i;
+                            for (i = 0; i < Global.wordList.Count; i++)
+                            {
+                                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectLeft.size, new Vector2(10, 20 + 55 * i)), Global.wordList[i]);
+                                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectLeft.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+                                {
+                                    Global.wordList.Remove(Global.wordList[i]);
+                                    WordListChanged = true;
+                                    i--;
+                                }
+                            }
+                            newWordInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectLeft.size, new Vector2(10, 5 + 55 * i)), newWordInput);
+                            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectLeft.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+                            {
+                                Global.wordList.Add(newWordInput);
+                                scrollWordsPosition.y += 55;
+                                newWordInput = "";
+                                WordListChanged = true;
+                            }
+                        }
+                        GUI.EndGroup();
+                        //words list end
 
-            //stop list
-            Rect viewRectRight = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 110, 50 + 55 * Global.stopList.Count);
-            Rect scrollRectRight = UIUtil.GetRect(new Vector2(viewRectRight.size.x + 20, Windows[windowID].rect.size.y - (135f + 110f)), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 135));
-            if (Global.StopListRecieved)
-                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectRight.size.x, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), Global.Texts("Stop list"));
-            else
-                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectRight.size.x, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), Global.Texts("Stop list no data"));
-            scrollStopPosition = GUI.BeginScrollView(scrollRectRight, scrollStopPosition, viewRectRight);
-            {
-                int i;
-                for (i = 0; i < Global.stopList.Count; i++)
-                {
-                    UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectRight.size, new Vector2(10, 20 + 55 * i)), Global.stopList[i]);
-                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectRight.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
-                    {
-                        Global.stopList.Remove(Global.stopList[i]);
-                        StopListChanged = true;
-                        i--;
+                        //stop list
+                        Rect viewRectRight = new Rect(0, 0, (Windows[windowID].rect.size.x) / 2 - 110, 50 + 55 * Global.stopList.Count);
+                        Rect scrollRectRight = UIUtil.GetRect(new Vector2(viewRectRight.size.x + 20, Windows[windowID].rect.size.y - (135f + 110f)), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 135));
+                        if (Global.StopListRecieved)
+                            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectRight.size.x, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), Global.Texts("Stop list"));
+                        else
+                            UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectRight.size.x, 20), PositionAnchor.RightUp, Windows[windowID].rect.size, new Vector2(-70, 110)), Global.Texts("Stop list no data"));
+                        scrollStopPosition = GUI.BeginScrollView(scrollRectRight, scrollStopPosition, viewRectRight);
+                        {
+                            int i;
+                            for (i = 0; i < Global.stopList.Count; i++)
+                            {
+                                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectRight.size, new Vector2(10, 20 + 55 * i)), Global.stopList[i]);
+                                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectRight.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+                                {
+                                    Global.stopList.Remove(Global.stopList[i]);
+                                    StopListChanged = true;
+                                    i--;
+                                }
+                            }
+                            newStopInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectRight.size, new Vector2(10, 5 + 55 * i)), newStopInput);
+                            if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectRight.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+                            {
+                                Global.stopList.Add(newStopInput);
+                                scrollStopPosition.y += 55;
+                                StopListChanged = true;
+                                newStopInput = "";
+                            }
+                        }
+                        GUI.EndGroup();
+                        //stop list end
+                        break;
                     }
-                }
-                newStopInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectLeft.width - 150, 50), PositionAnchor.LeftUp, viewRectRight.size, new Vector2(10, 5 + 55 * i)), newStopInput);
-                if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectRight.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
-                {
-                    Global.stopList.Add(newStopInput);
-                    scrollStopPosition.y += 55;
-                    StopListChanged = true;
-                    newStopInput = "";
-                }
+                case DeusUtility.UI.ScreenOrientation.Portrait:
+                    {
+						//words list
+                        Rect viewRectUp = new Rect(0, 0, Windows[windowID].rect.size.x - 140, 50 + 55 * Global.wordList.Count);
+                        Rect scrollRectUp = UIUtil.GetRect(new Vector2(viewRectUp.size.x + 20, (Windows[windowID].rect.size.y - (135f + 110f))/2-20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 135));
+						if (Global.WordListRecieved)
+							UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectUp.size.x, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 110)), Global.Texts("Words list"));
+						else
+							UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectUp.size.x, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 110)), Global.Texts("Words list no data"));
+						scrollWordsPosition = GUI.BeginScrollView(scrollRectUp, scrollWordsPosition, viewRectUp);
+						{
+							int i;
+							for (i = 0; i < Global.wordList.Count; i++)
+							{
+								UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectUp.width - 150, 50), PositionAnchor.LeftUp, viewRectUp.size, new Vector2(10, 20 + 55 * i)), Global.wordList[i]);
+								if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectUp.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+								{
+									Global.wordList.Remove(Global.wordList[i]);
+									WordListChanged = true;
+									i--;
+								}
+							}
+							newWordInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectUp.width - 150, 50), PositionAnchor.LeftUp, viewRectUp.size, new Vector2(10, 5 + 55 * i)), newWordInput);
+							if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectUp.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+							{
+								Global.wordList.Add(newWordInput);
+								scrollWordsPosition.y += 55;
+								newWordInput = "";
+								WordListChanged = true;
+							}
+						}
+						GUI.EndGroup();
+						//words list end
+
+						//stop list
+                        Rect viewRectDown = new Rect(0, 0, Windows[windowID].rect.size.x - 140, 50 + 55 * Global.stopList.Count);
+                        Rect scrollRectDown = UIUtil.GetRect(new Vector2(viewRectDown.size.x + 20, (Windows[windowID].rect.size.y - (135f + 110f)) / 2 - 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, scrollRectUp.size.y + 135f + 40f));
+						if (Global.StopListRecieved)
+							UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectDown.size.x, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, scrollRectUp.size.y + 110f + 40f)), Global.Texts("Stop list"));
+						else
+							UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectDown.size.x, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, scrollRectUp.size.y + 110f + 40f)), Global.Texts("Stop list no data"));
+						scrollStopPosition = GUI.BeginScrollView(scrollRectDown, scrollStopPosition, viewRectDown);
+						{
+							int i;
+							for (i = 0; i < Global.stopList.Count; i++)
+							{
+								UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRectUp.width - 150, 50), PositionAnchor.LeftUp, viewRectDown.size, new Vector2(10, 20 + 55 * i)), Global.stopList[i]);
+								if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectDown.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Delete")))
+								{
+									Global.stopList.Remove(Global.stopList[i]);
+									StopListChanged = true;
+									i--;
+								}
+							}
+							newStopInput = GUI.TextField(UIUtil.GetRect(new Vector2(viewRectUp.width - 150, 50), PositionAnchor.LeftUp, viewRectDown.size, new Vector2(10, 5 + 55 * i)), newStopInput);
+							if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRectDown.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+							{
+								Global.stopList.Add(newStopInput);
+								scrollStopPosition.y += 55;
+								StopListChanged = true;
+								newStopInput = "";
+							}
+						}
+						GUI.EndGroup();
+                        //stop list end
+                        break;
+					}
             }
-            GUI.EndGroup();
-            //stop list end
             if (WordListChanged||StopListChanged)
             {
                 if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -50)), Global.Texts("Regenerate")))

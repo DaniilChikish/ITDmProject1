@@ -167,6 +167,7 @@ namespace ITDmProject
         }
         public void LoadSettings()
         {
+            Debug.Log("Try to load settings.");
             switch (Application.platform)
             {
                 case RuntimePlatform.Android:
@@ -183,8 +184,6 @@ namespace ITDmProject
         }
         private void LoadSettingsAndroid()
         {
-            Debug.Log("Load settings");
-
             string path = Application.persistentDataPath + "/settingsMobile.dat";
             // передаем в конструктор тип класса
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeSettingsMobile));
@@ -195,6 +194,7 @@ namespace ITDmProject
                 settings = (SerializeSettingsMobile)formatter.Deserialize(fs);
                 Debug.Log(path + " - ok");
                 fs.Close();
+                Debug.Log("Settings loaded.");
             }
             catch (Exception)
             {
@@ -205,8 +205,6 @@ namespace ITDmProject
         }
         private void LoadSettingsDefault()
         {
-            Debug.Log("Load settings");
-
             string path = Application.streamingAssetsPath + "/settingsMobile.dat";
             // передаем в конструктор тип класса
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeSettingsMobile));
@@ -217,7 +215,8 @@ namespace ITDmProject
                 settings = (SerializeSettingsMobile)formatter.Deserialize(fs);
                 Debug.Log(path + " - ok");
                 fs.Close();
-            }
+				Debug.Log("Settings loaded.");
+			}
             catch (Exception)
             {
                 Debug.Log("Set default");
@@ -270,6 +269,15 @@ namespace ITDmProject
             NetworkManager.singleton.networkPort = port;
             NetworkManager.singleton.StartClient();
         }
+        public void Reconnect()
+        {
+			Debug.Log("Try to reconnect");
+			Debug.Log("\t addres:" + NetworkManager.singleton.networkAddress);
+			Debug.Log("\t port:" + NetworkManager.singleton.networkPort);
+			if (NetworkManager.singleton.isNetworkActive)
+				NetworkManager.singleton.StopClient();
+			NetworkManager.singleton.StartClient();         
+        }
         public void OnConnectedToServer()
         {
             Debug.Log("Main Connected.");
@@ -278,6 +286,7 @@ namespace ITDmProject
             settings.lastServerPort = NetworkManager.singleton.networkPort;
             messageTransmitter.OpenConnection();
             GetData();
+			SaveSettings();
         }
         private void OnFailedToConnect(NetworkConnectionError error)
         {
