@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Desktop.unity
+- path: Assets/Mobile.unity
   isLoaded: 1
   isActive: 1
