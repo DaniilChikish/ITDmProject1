@@ -215,8 +215,8 @@ namespace ITDmProject
                 settings = (SerializeSettingsMobile)formatter.Deserialize(fs);
                 Debug.Log(path + " - ok");
                 fs.Close();
-				Debug.Log("Settings loaded.");
-			}
+                Debug.Log("Settings loaded.");
+            }
             catch (Exception)
             {
                 Debug.Log("Set default");
@@ -232,7 +232,7 @@ namespace ITDmProject
         }
         private void Update()
         {
-
+            
         }
         public void RunClient()
         {
@@ -252,6 +252,7 @@ namespace ITDmProject
         }
         public void ConnectTo(string addres, int port)
         {
+            Disconnect();          
             Debug.Log("Try to connect");
             Debug.Log("\t addres:" + addres);
             Debug.Log("\t port:" + port);
@@ -263,20 +264,36 @@ namespace ITDmProject
                 messageTransmitter = body.gameObject.AddComponent<NetMessageTransmitter>();
                 Debug.Log("Transmiter created");
             }
-            if (NetworkManager.singleton.isNetworkActive)
-                NetworkManager.singleton.StopClient();
             NetworkManager.singleton.networkAddress = addres;
             NetworkManager.singleton.networkPort = port;
             NetworkManager.singleton.StartClient();
         }
+        public void ConnectTo(int serverIndex)
+        {
+            ConnectTo(Servers[serverIndex].Address, Servers[serverIndex].Port);
+        }
         public void Reconnect()
         {
-			Debug.Log("Try to reconnect");
-			Debug.Log("\t addres:" + NetworkManager.singleton.networkAddress);
-			Debug.Log("\t port:" + NetworkManager.singleton.networkPort);
-			if (NetworkManager.singleton.isNetworkActive)
-				NetworkManager.singleton.StopClient();
-			NetworkManager.singleton.StartClient();         
+            Disconnect();
+            Debug.Log("Try to reconnect");
+            Debug.Log("\t addres:" + NetworkManager.singleton.networkAddress);
+            Debug.Log("\t port:" + NetworkManager.singleton.networkPort);
+            NetworkManager.singleton.StartClient();         
+        }
+        public void Disconnect()
+        {
+            if (NetworkManager.singleton.client != null && NetworkManager.singleton.client.isConnected)
+            {
+                Debug.Log("Disconnect current.");
+                Connected = false;
+                //messageTransmitter.Disconnect();
+                //messageTransmitter.connectionToServer.Disconnect();
+                NetworkManager.singleton.client.Disconnect();
+                NetworkManager.singleton.client.Shutdown();
+                NetworkManager.singleton.client = null;
+                NetworkManager.singleton.StopHost();
+                Destroy(messageTransmitter);
+            }
         }
         public void OnConnectedToServer()
         {
@@ -286,20 +303,21 @@ namespace ITDmProject
             settings.lastServerPort = NetworkManager.singleton.networkPort;
             messageTransmitter.OpenConnection();
             GetData();
-			SaveSettings();
+            SaveSettings();
         }
         private void OnFailedToConnect(NetworkConnectionError error)
         {
             Debug.Log("Faild to connect. " + error.ToString());
         }
-        public void ConnectTo(int serverIndex)
-        {
-            ConnectTo(Servers[serverIndex].Address, Servers[serverIndex].Port);
-        }
-        public void Send(string word)
+        public void SendWord(string word)
         {
             wordList.Add(word);
             messageTransmitter.Send(word);
+        }
+        public void DeleteWord(string word)
+        {
+            wordList.Remove(word);
+            messageTransmitter.Delete(word);
         }
         public void GetData()
         {

@@ -19,12 +19,14 @@ namespace ITDmProject
             //if the client is also the server
             if (NetworkServer.active)
             {
-                //registering the server handler
-                NetworkServer.RegisterHandler(PutWord, PutWordHandler);
+				//registering the server handler
+				NetworkServer.RegisterHandler(PutWord, PutWordHandler);
+                NetworkServer.RegisterHandler(DeleteWord, DeleteWordHandler);
                 NetworkServer.RegisterHandler(OperationRequest, OperationRequestHandler);
                 NetworkServer.RegisterHandler(WordListData, WordListDataHandler);
                 NetworkServer.RegisterHandler(StopListData, StopListDataHandler);
-                NetworkServer.RegisterHandler(SettingsData, SettingsUpdateHandler);
+				NetworkServer.RegisterHandler(SettingsData, SettingsUpdateHandler);
+                NetworkServer.RegisterHandler(DisconnectRequest, DisconnectHandler);
                 NetworkServer.RegisterHandler(MsgType.AddPlayer, OnAddPlayer);
 				Global.SetServerUp();
             }
@@ -32,10 +34,16 @@ namespace ITDmProject
         private void PutWordHandler(NetworkMessage message)
         {
             string word = message.ReadMessage<StringMessage>().value;
-            Debug.Log("Recieved - " + word);
+            Debug.Log("Recieved - Put " + word);
             CreateWord(word);
 
         }
+		private void DeleteWordHandler(NetworkMessage message)
+		{
+			string word = message.ReadMessage<StringMessage>().value;
+			Debug.Log("Recieved - Delete " + word);
+			Delete(word);
+		}
         private void OperationRequestHandler(NetworkMessage message)
         {
             string request = message.ReadMessage<StringMessage>().value;
@@ -136,14 +144,22 @@ namespace ITDmProject
 
         private void OnAddPlayer(NetworkMessage netMsg)
 		{
-            Debug.Log("Clint " + netMsg.conn.address + " connected.");
+            Debug.Log("Client " + netMsg.conn.address + " connected.");
             StringMessage ansver = new StringMessage("OK");
             NetworkServer.SendToClient(netMsg.conn.connectionId, MsgType.Connect, ansver);
 		}
-
+        private void DisconnectHandler(NetworkMessage netMsg)
+        {
+            Debug.Log("Client " + netMsg.conn.address + " disconnecting.");
+            netMsg.conn.Disconnect();
+        }
         public void CreateWord(string word)
         {
             Global.AddNCaptere(word);
         }
+		public void Delete(string word)
+		{
+			Global.Delete(word);
+		}
     }
 }

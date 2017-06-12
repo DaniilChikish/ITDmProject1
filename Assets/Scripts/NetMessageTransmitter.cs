@@ -32,7 +32,8 @@ namespace ITDmProject
         public void OpenConnection()
         {
 			NetworkManager.singleton.client.RegisterHandler(PutWord, PutWordHandler);
-            NetworkManager.singleton.client.RegisterHandler(OperationRequest, OperationRequestHandler);
+            NetworkManager.singleton.client.RegisterHandler(DeleteWord, DeleteWordHandler);
+			NetworkManager.singleton.client.RegisterHandler(OperationRequest, OperationRequestHandler);
             NetworkManager.singleton.client.RegisterHandler(WordListData, WordListDataHandler);
             NetworkManager.singleton.client.RegisterHandler(StopListData, StopListDataHandler);
             NetworkManager.singleton.client.RegisterHandler(SettingsData, SettingsUpdateHandler);
@@ -45,6 +46,10 @@ namespace ITDmProject
         {
             string text = netMsg.ReadMessage<StringMessage>().value;
         }
+		private void DeleteWordHandler(NetworkMessage netMsg)
+		{
+			string text = netMsg.ReadMessage<StringMessage>().value;
+		}
         private void OperationRequestHandler(NetworkMessage netMsg)
         {
             throw new NotImplementedException();
@@ -98,8 +103,16 @@ namespace ITDmProject
             //sending to server
             NetworkManager.singleton.client.Send(PutWord, message);
             Debug.Log(word + " - Sent");
-            //Destroy(this);
         }
+		public void Delete(string word)
+		{
+			StringMessage message = new StringMessage();
+			//getting the value of the input
+			message.value = word;
+			//sending to server
+            NetworkManager.singleton.client.Send(DeleteWord, message);
+			Debug.Log(word + " - Delete");
+		}
         public void GetData(Operation oper)
         {
             StringMessage message = new StringMessage();
@@ -175,10 +188,14 @@ namespace ITDmProject
             outp.Append("#" + Global.ServerName);
 			return new StringMessage(outp.ToString());
 		}
-
+        public void Disconnect()
+        {
+           
+        }
         private void OnDestroy()
         {
-            NetworkManager.singleton.client.Shutdown();
+            Disconnect();
+
 			//NetworkManager.Shutdown();
 			Debug.Log("Transmitter destroyed");
         }

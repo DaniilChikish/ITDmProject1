@@ -470,7 +470,8 @@ namespace ITDmProject
         {
             foreach (string x in stopList)
             {
-                if (text.IndexOf(x) != -1)
+                //if (Regex.IsMatch(text, "\\b" + x + "\\b"))
+                if (text.IndexOf(x, StringComparison.OrdinalIgnoreCase) != -1)
                     return false;
             }
             return true;
@@ -479,6 +480,19 @@ namespace ITDmProject
         {
             if (Allowed(text))
                 Capture(CreateWord(text));
+        }
+        public void Delete(string word)
+        {
+            for (int i = 0; i < keysList.Count; i++)
+            {
+                if (keysList[i].Split('_')[0] == word)
+                {
+                    Destroy(wordObjs[keysList[i]].gameObject);
+                    keysList.Remove(keysList[i]);
+                    i--;
+                    return;
+                }
+            }
         }
         private void OnApplicationQuit()
         {
