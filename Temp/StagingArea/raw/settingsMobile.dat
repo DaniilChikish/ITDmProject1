@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<SerializeSettingsMobile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <localisation>English</localisation>
+  <lastServerAddres>::ffff:192.168.5.104</lastServerAddres>
+  <lastServerPort>10000</lastServerPort>
+</SerializeSettingsMobile>

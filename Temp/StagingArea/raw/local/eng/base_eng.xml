@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<SerializeDataOfStringString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <keys>
+    <string>Yes</string>
+    <string>No</string>
+    <string>Back</string>
+    <string>Continue</string>
+    <string>Pause</string>
+    <string>Play</string>
+    <string>Start</string>
+    <string>Options</string>
+    <string>Resolution</string>
+    <string>Sound</string>
+    <string>Music</string>
+    <string>Language</string>
+    <string>Save</string>
+    <string>About</string>
+    <string>Quit</string>
+    <string>Run</string>
+    <string>Discover</string>
+    <string>Refresh</string>
+    <string>Connect</string>
+    <string>Disconnect</string>
+    <string>Up</string>
+    <string>Down</string>
+    <string>Quit_question</string>
+    <string>Restart</string>
+	<string>Next</string>
+    <string>Menu</string>
+    <string>Main menu</string>
+    <string>Development</string>
+    <string>Develop_content</string>
+    <string>Developer page</string>
+    <string>Duration</string>
+    <string>Delay</string>
+	<string>Radius</string>
+	<string>Object radius</string>
+    <string>Sphere radius</string>
+    <string>Server name</string>
+		<string>Send</string>
+</keys>
+  <values>
+    <string>Yes</string>
+    <string>No</string>
+    <string>Back</string>
+    <string>Continue</string>
+    <string>Pause</string>
+    <string>Play</string>
+    <string>Start</string>
+    <string>Options</string>
+    <string>Resolution</string>
+    <string>Sound</string>
+    <string>Music</string>
+    <string>Language</string>
+	<string>Save</string>
+    <string>About</string>
+    <string>Quit</string>
+    <string>Run</string>
+    <string>Discover</string>
+    <string>Refresh</string>
+    <string>Connect</string>
+    <string>Disconnect</string>
+    <string>Up</string>
+    <string>Down</string>
+    <string>Realy quit?</string>
+    <string>Restart</string>
+    <string>Next</string>
+    <string>Menu</string>
+    <string>Main menu</string>
+    <string>Development</string>
+    <string>Design - Jogo Deus;
+Scripting - Jogo Deus;
+Modeling - Jogo Deus;
+Texturing - Open source;
+Music - Open source.
+Special for IT Dimension.</string>
+    <string>Developer page</string>
+	<string>Duration</string>
+    <string>Delay</string>
+    <string>Radius</string>
+    <string>Object radius</string>
+    <string>Sphere radius</string>
+    <string>Server name</string>
+        <string>Send</string>
+</values>
+</SerializeDataOfStringString>

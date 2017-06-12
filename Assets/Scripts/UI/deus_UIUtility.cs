@@ -220,6 +220,58 @@ namespace DeusUtility.UI
             }
             return new Rect(position, size);
         }
+		public static bool InArea(Vector2 position, Rect area)
+        {
+            return InArea(position, area, 1f);
+        }
+
+		public static bool InArea(Vector2 position, Rect area, float GuiScale)
+        {
+            position.y = Screen.height - position.y;
+            position = position / GuiScale;
+            if ((position.x > area.position.x &&
+                 position.y > area.position.y) &&
+                (position.x < area.position.x + area.size.x &&
+                 position.y < area.position.y + area.size.y))
+                return true;
+            else return false;
+        }
+		public static Vector2 TouchScroll(Vector2 scrollPosition, Rect area)
+		{
+			return TouchScroll(scrollPosition, area, 1f, 1f);
+		}
+		public static Vector2 TouchScroll(Vector2 scrollPosition, Rect area, float speedFactor)
+        {
+            return TouchScroll(scrollPosition, area, speedFactor, 1f);
+        }
+
+		public static Vector2 TouchScroll(Vector2 scrollPosition, Rect area, float speedFactor, float GuiScale)
+        {
+            if (Input.touches.Length > 0)
+            {
+                Touch t = Input.GetTouch(0);
+                Vector2 outp = scrollPosition;
+                if (InArea(t.position, area, GuiScale))
+                    outp += (t.deltaPosition * speedFactor);
+                return outp;
+            }
+            else return scrollPosition;
+        }
+		public static Vector2 MouseScroll(Vector2 scrollPosition, Rect area)
+		{
+			return MouseScroll(scrollPosition, area, 1f, 1f);
+		}
+		public static Vector2 MouseScroll(Vector2 scrollPosition, Rect area, float speedFactor)
+		{
+			return MouseScroll(scrollPosition, area, speedFactor, 1f);
+		}
+        public static Vector2 MouseScroll(Vector2 scrollPosition, Rect area, float speedFactor, float GuiScale)
+        {
+            Vector2 outp = scrollPosition;
+            if (InArea(Input.mousePosition, area, GuiScale))
+                outp += (Input.mouseScrollDelta*speedFactor);
+            return outp;
+        }
         public static void WindowTitle(UIWindowInfo window, string text)
         {
             Vector2 bgOffset = new Vector2(36, 15);
