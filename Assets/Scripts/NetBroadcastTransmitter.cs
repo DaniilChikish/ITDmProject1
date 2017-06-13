@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,11 +24,18 @@ namespace ITDmProject
             int serverPort = CreateServer();
             if (serverPort != -1)
             {
-                Debug.Log("Server created on port : " + serverPort);
-                broadcastData = serverPort.ToString() + "#" + Global.ServerName;
-                Initialize();
-                StartAsServer();
-                Global.RunServerMessanger();
+                try
+                {
+                    Debug.Log("Server created on port : " + serverPort);
+                    broadcastData = serverPort.ToString() + "#" + Global.ServerName;
+                    Initialize();
+                    StartAsServer();
+                    Global.RunServerMessanger();
+                }
+                catch (Exception)
+                {
+					Debug.Log("Failed to run Server");
+				}
             }
             else
             {

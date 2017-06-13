@@ -15,6 +15,8 @@ namespace ITDmProject
         protected const int SettingsData = 455;
 		protected const int DeleteWord = 456;
 		protected const int DisconnectRequest = 457;
+        protected const int AddStopMsg = 458;
+        protected const int DeleteStopMsg = 459;
 		public enum Operation { Settings, StopList, WordList };
     }
 }

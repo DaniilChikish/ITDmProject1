@@ -24,6 +24,7 @@ namespace ITDmProject
         public bool ServerUp { get { return serverUp; } }
         private GameObject server;
         private NetworkManager manager;
+        private bool DataDirty;
         //storage
         private Stack<Vector3> randPositions;
         private Stack<Quaternion> randRotations;
@@ -465,6 +466,7 @@ namespace ITDmProject
         {
             this.stopList.Clear();
             this.stopList.AddRange(stopList);
+            CheckWords();
         }
         private bool Allowed(string text)
         {
@@ -475,6 +477,18 @@ namespace ITDmProject
                     return false;
             }
             return true;
+        }
+        private void CheckWords()
+        {
+            for (int i = 0; i < keysList.Count; i++)
+            {
+                if (!Allowed(keysList[i].Split('_')[0]))
+				{
+					Destroy(wordObjs[keysList[i]].gameObject);
+					keysList.Remove(keysList[i]);
+					i--;
+				}  
+            }
         }
         public void AddNCaptere(string text)
         {
@@ -493,6 +507,15 @@ namespace ITDmProject
                     return;
                 }
             }
+        }
+        public void AddStop(string word)
+        {
+            stopList.Add(word);
+            CheckWords();
+        }
+        public void RemoveStop(string word)
+        {
+            stopList.Remove(word);
         }
         private void OnApplicationQuit()
         {

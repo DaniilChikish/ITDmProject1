@@ -319,6 +319,37 @@ namespace ITDmProject
             wordList.Remove(word);
             messageTransmitter.Delete(word);
         }
+		public void AddStop(string word)
+		{
+            stopList.Add(word);
+            messageTransmitter.AddStop(word);
+		}
+		public void RemoveStop(string word)
+		{
+            stopList.Remove(word);
+            messageTransmitter.RemoveStop(word);
+		}
+        public bool Allowed(string text)
+		{
+			foreach (string x in stopList)
+			{
+				//if (Regex.IsMatch(text, "\\b" + x + "\\b"))
+				if (text.IndexOf(x, StringComparison.OrdinalIgnoreCase) != -1)
+					return false;
+			}
+			return true;
+		}
+        public void CheckWords()
+		{
+            for (int i = 0; i < wordList.Count; i++)
+			{
+                if (!Allowed(wordList[i]))
+				{
+                    wordList.Remove(wordList[i]);
+					i--;
+				}
+			}
+		}
         public void GetData()
         {
             if (!SettingsRecieved)

@@ -22,6 +22,8 @@ namespace ITDmProject
 				//registering the server handler
 				NetworkServer.RegisterHandler(PutWord, PutWordHandler);
                 NetworkServer.RegisterHandler(DeleteWord, DeleteWordHandler);
+                NetworkServer.RegisterHandler(AddStopMsg, AddStopHandler);
+                NetworkServer.RegisterHandler(DeleteStopMsg, DeleteStopHandler);
                 NetworkServer.RegisterHandler(OperationRequest, OperationRequestHandler);
                 NetworkServer.RegisterHandler(WordListData, WordListDataHandler);
                 NetworkServer.RegisterHandler(StopListData, StopListDataHandler);
@@ -35,14 +37,26 @@ namespace ITDmProject
         {
             string word = message.ReadMessage<StringMessage>().value;
             Debug.Log("Recieved - Put " + word);
-            CreateWord(word);
+            CreateWordF(word);
 
         }
 		private void DeleteWordHandler(NetworkMessage message)
 		{
 			string word = message.ReadMessage<StringMessage>().value;
 			Debug.Log("Recieved - Delete " + word);
-			Delete(word);
+            DeleteWordF(word);
+		}
+		private void AddStopHandler(NetworkMessage message)
+		{
+			string word = message.ReadMessage<StringMessage>().value;
+			Debug.Log("Recieved - Add Stop " + word);
+			AddStopF(word);
+		}
+		private void DeleteStopHandler(NetworkMessage message)
+		{
+			string word = message.ReadMessage<StringMessage>().value;
+			Debug.Log("Recieved - Delete Stop " + word);
+			DeleteStopF(word);
 		}
         private void OperationRequestHandler(NetworkMessage message)
         {
@@ -153,13 +167,21 @@ namespace ITDmProject
             Debug.Log("Client " + netMsg.conn.address + " disconnecting.");
             netMsg.conn.Disconnect();
         }
-        public void CreateWord(string word)
+        public void CreateWordF(string word)
         {
             Global.AddNCaptere(word);
         }
-		public void Delete(string word)
+		public void DeleteWordF(string word)
 		{
 			Global.Delete(word);
+		}
+        public void AddStopF(string word)
+		{
+			Global.AddStop(word);
+		}
+        public void DeleteStopF(string word)
+		{
+			Global.RemoveStop(word);
 		}
     }
 }

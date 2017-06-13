@@ -113,6 +113,24 @@ namespace ITDmProject
             NetworkManager.singleton.client.Send(DeleteWord, message);
 			Debug.Log(word + " - Delete");
 		}
+		public void AddStop(string word)
+		{
+			StringMessage message = new StringMessage();
+			//getting the value of the input
+			message.value = word;
+			//sending to server
+            NetworkManager.singleton.client.Send(AddStopMsg, message);
+			Debug.Log(word + " - Stop Sent");
+		}
+		public void RemoveStop(string word)
+		{
+			StringMessage message = new StringMessage();
+			//getting the value of the input
+			message.value = word;
+			//sending to server
+            NetworkManager.singleton.client.Send(DeleteStopMsg, message);
+			Debug.Log(word + " - Stop Delete");
+		}
         public void GetData(Operation oper)
         {
             StringMessage message = new StringMessage();
