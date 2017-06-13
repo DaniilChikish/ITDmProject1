@@ -89,9 +89,15 @@ namespace ITDmProject
                         mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
                         Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(16, 9), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
                         if (mobileKeyboard != null && mobileKeyboard.active)
-                            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Up, mainRect.size, new Vector2(0, 20)));//launch
+                        {
+                            Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(16, 9), screenRatio) / scale * 1f, PositionAnchor.Down, mainRect.size, new Vector2(0, -UIUtil.GetAndroidTouchKeyboardHeight())));//main
+                            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Down, mainRect.size, new Vector2(0, -UIUtil.GetAndroidTouchKeyboardHeight())));//launch
+                        }
                         else
-                            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
+                        {
+							Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(16, 9), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
+							Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
+                        }
                         Windows[2] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(6.8f, 8.4f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//admin
                         break;
                     }
@@ -99,11 +105,16 @@ namespace ITDmProject
                     {
                         scale = Screen.width / (720f / 1.4f);
                         mainRect = new Rect(0, 0, Screen.width / scale, Screen.height / scale);
-                        Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(9, 16), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
-						if (mobileKeyboard != null && mobileKeyboard.active)
-							Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Up, mainRect.size, new Vector2(0, 20)));//launch
-						else
+                        if (mobileKeyboard != null && mobileKeyboard.active)
+                        {
+                            Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(9, 16), screenRatio) / scale * 1f, PositionAnchor.Down, mainRect.size, new Vector2(0, -UIUtil.GetAndroidTouchKeyboardHeight())));//main
+                            Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Down, mainRect.size, new Vector2(0, -UIUtil.GetAndroidTouchKeyboardHeight())));//launch
+                        }
+                        else
+                        {
+							Windows[0] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(9, 16), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//main
 							Windows[1] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(8, 5.0f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//launch
+                        }
                         Windows[2] = new UIWindowInfo(UIUtil.GetRect(UIUtil.GetRectSize(new Vector2(6.8f, 8.4f), screenRatio) / scale * 1f, PositionAnchor.Center, mainRect.size));//admin
 						break;
                     }
@@ -166,7 +177,7 @@ namespace ITDmProject
             {
                 CurWin = MenuWindow.Servers;
             }
-            if (Global.SettingsRecieved)
+            if (Global.Connected&&Global.SettingsRecieved)
             {
                 if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(200, 50), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 150)), Global.Texts("Word list")))
                 {
@@ -242,7 +253,7 @@ namespace ITDmProject
                         enter = true;
                     else
                     {
-                        enter = mobileKeyboard.done;
+                        //enter = mobileKeyboard.done;
                         newWordInput = ValidString.ReplaceChar(mobileKeyboard.text, '#', '_');
                     }
                 }
@@ -295,7 +306,7 @@ namespace ITDmProject
 
             //stop list
             Rect viewRect = new Rect(0, 0, Windows[windowID].rect.size.x - 140, 50 + 55 * Global.stopList.Count);
-            Rect scrollRect = UIUtil.GetRect(new Vector2(viewRect.size.x + 20, (Windows[windowID].rect.size.y - (135f + 110f))), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 135));
+            Rect scrollRect = UIUtil.GetRect(new Vector2(viewRect.size.x + 20, (Windows[windowID].rect.size.y - (135f + 140f))), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 135));
             if (Global.StopListRecieved)
                 UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(viewRect.size.x, 20), PositionAnchor.Up, Windows[windowID].rect.size, new Vector2(0, 110f)), Global.Texts("Stop list"));
             else
@@ -329,35 +340,42 @@ namespace ITDmProject
                     }
                 }
                 newStopInput = ValidString.ReplaceChar(GUI.TextField(UIUtil.GetRect(new Vector2(viewRect.width - 150, 50), PositionAnchor.LeftUp, viewRect.size, new Vector2(10, 5 + 55 * i)), newStopInput), '#', '_');
-				bool enter = false;
-				if (Application.platform == RuntimePlatform.Android)
-				{
-					if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRect.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
-						enter = true;
-					else
-					{
-						enter = mobileKeyboard.done;
-                        newStopInput = ValidString.ReplaceChar(mobileKeyboard.text, '#', '_');
-					}
-				}
-				else
-				{
-					enter |= (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRect.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")) || Input.GetKey(KeyCode.Return));
-				}
-				if (enter)
-				{
-                    if (newStopInput != "")
+                bool enter = false;
+                if (Application.platform == RuntimePlatform.Android)
+                {
+                    if (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRect.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")))
+                        enter = true;
+                    else
                     {
-                        Global.stopList.Add(newStopInput);
-                        scrollStopPosition.y += 55;
-                        StopListChanged = true;
-                        newStopInput = "";
-						if (mobileKeyboard != null)
-							mobileKeyboard.text = "";
+                        //enter = mobileKeyboard.done;
+                        newStopInput = ValidString.ReplaceChar(mobileKeyboard.text, '#', '_');
                     }
+                }
+                else
+                {
+                    enter |= (UIUtil.ButtonBig(UIUtil.GetRect(new Vector2(120, 50), PositionAnchor.RightUp, viewRect.size, new Vector2(-10, 5 + 55 * i)), Global.Texts("Add")) || Input.GetKey(KeyCode.Return));
+                }
+                if (enter)
+                {
+                    if (newStopInput != "")
+                        if (Global.Allowed(newStopInput))
+                        {
+                            Global.stopList.Add(newStopInput);
+                            scrollStopPosition.y += 55;
+                            StopListChanged = true;
+                            newStopInput = "";
+                            if (mobileKeyboard != null)
+                                mobileKeyboard.text = "";
+                        }
+                        else
+                        {
+                            labelBackCount = 5;
+                        }
                 }
             }
             GUI.EndGroup();
+			if (labelBackCount > 0)
+				UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(150, 20), PositionAnchor.Down, Windows[windowID].rect.size, new Vector2(0, -100)), Global.Texts("Contained"));
             //stop list end
             if (StopListChanged)
             {
@@ -433,8 +451,10 @@ namespace ITDmProject
             UIUtil.WindowTitle(Windows[windowID], "WordDisplay");
             GUIStyle local = new GUIStyle(Skin.GetStyle("TextField"));
             local.fontSize = 26;
-            if (labelBackCount > 0)
-                UIUtil.TextStyle1(UIUtil.GetRect(new Vector2(50, 20), PositionAnchor.Center, Windows[windowID].rect.size, new Vector2(100, 45)), Global.Texts("Sent"));
+            if (!Global.Connected)
+				UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(100, 20), PositionAnchor.Center, Windows[windowID].rect.size, new Vector2(0, 45)), Global.Texts("Disconnected"));
+			if (labelBackCount > 0)
+                UIUtil.TextStyle2(UIUtil.GetRect(new Vector2(50, 20), PositionAnchor.Center, Windows[windowID].rect.size, new Vector2(100, 45)), Global.Texts("Sent"));
             bool enter = false;
             if (Application.platform == RuntimePlatform.Android)
             {
@@ -444,7 +464,7 @@ namespace ITDmProject
                 {
                     if (mobileKeyboard == null)
                         mobileKeyboard = TouchScreenKeyboard.Open(sendingWord, TouchScreenKeyboardType.Default);
-                    enter = mobileKeyboard.done;
+                    //enter = mobileKeyboard.done;
                     sendingWord = ValidString.ReplaceChar(mobileKeyboard.text, '#', '_');
                 }
             }

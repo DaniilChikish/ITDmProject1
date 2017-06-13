@@ -272,6 +272,20 @@ namespace DeusUtility.UI
                 outp += (Input.mouseScrollDelta*speedFactor);
             return outp;
         }
+        public static int GetAndroidTouchKeyboardHeight()
+		{
+			using (AndroidJavaClass UnityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+			{
+				AndroidJavaObject View = UnityClass.GetStatic<AndroidJavaObject>("currentActivity").Get<AndroidJavaObject>("mUnityPlayer").Call<AndroidJavaObject>("getView");
+
+				using (AndroidJavaObject Rct = new AndroidJavaObject("android.graphics.Rect"))
+				{
+					View.Call("getWindowVisibleDisplayFrame", Rct);
+
+					return Screen.height - Rct.Call<int>("height");
+				}
+			}
+		}
         public static void WindowTitle(UIWindowInfo window, string text)
         {
             Vector2 bgOffset = new Vector2(36, 15);

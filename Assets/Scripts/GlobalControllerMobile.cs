@@ -16,6 +16,8 @@ namespace ITDmProject
         public NetBroadcastReciever broadcastReciever;
         public NetMessageTransmitter messageTransmitter;
         public List<ServerInfo> Servers;
+        //private float listRebuildBackount;
+        private int reconCount;
         //settings
         private SerializeSettingsMobile settings;
         public bool SettingsSaved;
@@ -232,7 +234,13 @@ namespace ITDmProject
         }
         private void Update()
         {
-            
+            //if (listRebuildBackount > 0)
+            //    listRebuildBackount -= Time.deltaTime;
+            //else
+            //{
+            //    listRebuildBackount = 1;
+            //    Servers.Clear();
+            //}
         }
         public void RunClient()
         {
@@ -278,14 +286,18 @@ namespace ITDmProject
             Debug.Log("Try to reconnect");
             Debug.Log("\t addres:" + NetworkManager.singleton.networkAddress);
             Debug.Log("\t port:" + NetworkManager.singleton.networkPort);
-            NetworkManager.singleton.StartClient();         
+            NetworkManager.singleton.StartClient();
+            reconCount++;
         }
         public void Disconnect()
         {
+            reconCount = 0;
+            Servers.Clear();
             if (NetworkManager.singleton.client != null && NetworkManager.singleton.client.isConnected)
             {
                 Debug.Log("Disconnect current.");
                 Connected = false;
+                SettingsRecieved = false;
                 //messageTransmitter.Disconnect();
                 //messageTransmitter.connectionToServer.Disconnect();
                 NetworkManager.singleton.client.Disconnect();
@@ -308,6 +320,24 @@ namespace ITDmProject
         private void OnFailedToConnect(NetworkConnectionError error)
         {
             Debug.Log("Faild to connect. " + error.ToString());
+        }
+        public void OnNetworkError()
+        {
+            Connected = false;
+            SettingsRecieved = false;
+            try
+            {
+                Disconnect();
+            }
+            catch(Exception)
+            {
+                
+            }
+            finally
+            {
+                if (reconCount < 5)
+                    Reconnect();
+            }
         }
         public void SendWord(string word)
         {

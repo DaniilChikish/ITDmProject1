@@ -15,7 +15,7 @@ namespace ITDmProject
         // Use this for initialization
         void Start()
         {
-			Global = FindObjectOfType<GlobalControllerMobile>();
+            Global = FindObjectOfType<GlobalControllerMobile>();
             NetworkManager.singleton.client.RegisterHandler(MsgType.Connect, ConnectMessageHandler);
         }
         private void OnConnectedToServer()
@@ -31,14 +31,22 @@ namespace ITDmProject
         }
         public void OpenConnection()
         {
-			NetworkManager.singleton.client.RegisterHandler(PutWord, PutWordHandler);
+            NetworkManager.singleton.client.RegisterHandler(PutWord, PutWordHandler);
             NetworkManager.singleton.client.RegisterHandler(DeleteWord, DeleteWordHandler);
-			NetworkManager.singleton.client.RegisterHandler(OperationRequest, OperationRequestHandler);
+            NetworkManager.singleton.client.RegisterHandler(OperationRequest, OperationRequestHandler);
             NetworkManager.singleton.client.RegisterHandler(WordListData, WordListDataHandler);
             NetworkManager.singleton.client.RegisterHandler(StopListData, StopListDataHandler);
             NetworkManager.singleton.client.RegisterHandler(SettingsData, SettingsUpdateHandler);
+            NetworkManager.singleton.client.RegisterHandler(MsgType.Error, ErrorHandler);
         }
-		private void ConnectMessageHandler(NetworkMessage netMsg)
+
+        private void ErrorHandler(NetworkMessage netMsg)
+        {
+            Debug.Log("NetError:" + netMsg.ReadMessage<StringMessage>().value);
+            Global.OnNetworkError();
+        }
+
+        private void ConnectMessageHandler(NetworkMessage netMsg)
         {
             OnConnectedToServer();
         }
@@ -46,10 +54,10 @@ namespace ITDmProject
         {
             string text = netMsg.ReadMessage<StringMessage>().value;
         }
-		private void DeleteWordHandler(NetworkMessage netMsg)
-		{
-			string text = netMsg.ReadMessage<StringMessage>().value;
-		}
+        private void DeleteWordHandler(NetworkMessage netMsg)
+        {
+            string text = netMsg.ReadMessage<StringMessage>().value;
+        }
         private void OperationRequestHandler(NetworkMessage netMsg)
         {
             throw new NotImplementedException();
@@ -57,11 +65,11 @@ namespace ITDmProject
         private void WordListDataHandler(NetworkMessage message)
         {
             Debug.Log("WordList recieved.");
-			string content = message.ReadMessage<StringMessage>().value;
-			//Debug.Log(content);
-			string[] data = content.Split('#');
-			List<string> buff = new List<string>(data);
-			buff.Remove(buff[0]);
+            string content = message.ReadMessage<StringMessage>().value;
+            //Debug.Log(content);
+            string[] data = content.Split('#');
+            List<string> buff = new List<string>(data);
+            buff.Remove(buff[0]);
             Global.wordList.Clear();
             Global.wordList.AddRange(buff);
             Global.WordListRecieved = true;
@@ -69,16 +77,16 @@ namespace ITDmProject
         }
         private void StopListDataHandler(NetworkMessage message)
         {
-			Debug.Log("StopList recieved.");
-			string content = message.ReadMessage<StringMessage>().value;
-			//Debug.Log(content);
-			string[] data = content.Split('#');
-			List<string> buff = new List<string>(data);
-			buff.Remove(buff[0]);
+            Debug.Log("StopList recieved.");
+            string content = message.ReadMessage<StringMessage>().value;
+            //Debug.Log(content);
+            string[] data = content.Split('#');
+            List<string> buff = new List<string>(data);
+            buff.Remove(buff[0]);
             Global.stopList.Clear();
             Global.stopList.AddRange(buff);
             Global.StopListRecieved = true;
-			Global.GetData();
+            Global.GetData();
         }
         private void SettingsUpdateHandler(NetworkMessage message)
         {
@@ -93,7 +101,7 @@ namespace ITDmProject
             Global.ServerName = data[5];
             Global.SettingsRecieved = true;
             Global.DesctopSettingsSaved = true;
-			Global.GetData();
+            Global.GetData();
         }
         public void Send(string word)
         {
@@ -101,36 +109,68 @@ namespace ITDmProject
             //getting the value of the input
             message.value = word;
             //sending to server
-            NetworkManager.singleton.client.Send(PutWord, message);
-            Debug.Log(word + " - Sent");
+            try
+            {
+                NetworkManager.singleton.client.Send(PutWord, message);
+                Debug.Log(word + " - Sent");
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error");
+                Global.OnNetworkError();
+            }
         }
-		public void Delete(string word)
-		{
-			StringMessage message = new StringMessage();
-			//getting the value of the input
-			message.value = word;
-			//sending to server
-            NetworkManager.singleton.client.Send(DeleteWord, message);
-			Debug.Log(word + " - Delete");
-		}
-		public void AddStop(string word)
-		{
-			StringMessage message = new StringMessage();
-			//getting the value of the input
-			message.value = word;
-			//sending to server
-            NetworkManager.singleton.client.Send(AddStopMsg, message);
-			Debug.Log(word + " - Stop Sent");
-		}
-		public void RemoveStop(string word)
-		{
-			StringMessage message = new StringMessage();
-			//getting the value of the input
-			message.value = word;
-			//sending to server
-            NetworkManager.singleton.client.Send(DeleteStopMsg, message);
-			Debug.Log(word + " - Stop Delete");
-		}
+        public void Delete(string word)
+        {
+            StringMessage message = new StringMessage();
+            //getting the value of the input
+            message.value = word;
+            //sending to server
+            try
+            {
+                NetworkManager.singleton.client.Send(DeleteWord, message);
+                Debug.Log(word + " - Delete");
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error");
+                Global.OnNetworkError();
+            }
+        }
+        public void AddStop(string word)
+        {
+            StringMessage message = new StringMessage();
+            //getting the value of the input
+            message.value = word;
+            //sending to server
+            try
+            {
+                NetworkManager.singleton.client.Send(AddStopMsg, message);
+                Debug.Log(word + " - Stop Sent");
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error");
+                Global.OnNetworkError();
+            }
+        }
+        public void RemoveStop(string word)
+        {
+            StringMessage message = new StringMessage();
+            //getting the value of the input
+            message.value = word;
+            //sending to server
+            try
+            {
+                NetworkManager.singleton.client.Send(DeleteStopMsg, message);
+                Debug.Log(word + " - Stop Delete");
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error");
+                Global.OnNetworkError();
+            }
+        }
         public void GetData(Operation oper)
         {
             StringMessage message = new StringMessage();
@@ -152,9 +192,17 @@ namespace ITDmProject
                         break;
                     }
             }
-            //sending to server
-            NetworkManager.singleton.client.Send(OperationRequest, message);
-            Debug.Log(oper.ToString() + "Request - Sent");
+            try
+            {
+                //sending to server
+                NetworkManager.singleton.client.Send(OperationRequest, message);
+                Debug.Log(oper.ToString() + "Request - Sent");
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error");
+                Global.OnNetworkError();
+            }
         }
         public void PushData(Operation oper)
         {
@@ -185,8 +233,8 @@ namespace ITDmProject
             {
                 outp.Append("#" + x);
             }
-			return new StringMessage(outp.ToString());
-		}
+            return new StringMessage(outp.ToString());
+        }
         private StringMessage StopListString()
         {
             StringBuilder outp = new StringBuilder("stop");
@@ -194,7 +242,7 @@ namespace ITDmProject
             {
                 outp.Append("#" + x);
             }
-			return new StringMessage(outp.ToString());
+            return new StringMessage(outp.ToString());
         }
         private StringMessage SettingsString()
         {
@@ -204,18 +252,18 @@ namespace ITDmProject
             outp.Append("#" + Global.Radius);
             outp.Append("#" + Global.ObjectRadius);
             outp.Append("#" + Global.ServerName);
-			return new StringMessage(outp.ToString());
-		}
+            return new StringMessage(outp.ToString());
+        }
         public void Disconnect()
         {
-           
+
         }
         private void OnDestroy()
         {
             Disconnect();
 
-			//NetworkManager.Shutdown();
-			Debug.Log("Transmitter destroyed");
+            //NetworkManager.Shutdown();
+            Debug.Log("Transmitter destroyed");
         }
     }
 }
