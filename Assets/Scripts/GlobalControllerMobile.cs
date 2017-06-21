@@ -275,6 +275,7 @@ namespace ITDmProject
             NetworkManager.singleton.networkAddress = addres;
             NetworkManager.singleton.networkPort = port;
             NetworkManager.singleton.StartClient();
+			reconCount = 0;
         }
         public void ConnectTo(int serverIndex)
         {
@@ -291,7 +292,6 @@ namespace ITDmProject
         }
         public void Disconnect()
         {
-            reconCount = 0;
             Servers.Clear();
             if (NetworkManager.singleton.client != null && NetworkManager.singleton.client.isConnected)
             {
@@ -452,8 +452,6 @@ namespace ITDmProject
                         break;
                     }
             }
-            //SaveText();//debug only
-            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
             // передаем в конструктор тип класса
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
             // десериализация
@@ -462,7 +460,6 @@ namespace ITDmProject
             SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
             serialeze.OnAfterDeserialize();
             Debug.Log(serialeze.ToString());
-            //texts = new Dictionary<string, string>();
             texts = serialeze.Data;
         }
         private void LoadLocalisationTextsDefault()
@@ -486,8 +483,6 @@ namespace ITDmProject
                         break;
                     }
             }
-            //SaveText();//debug only
-            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
             // передаем в конструктор тип класса
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
             // десериализация
@@ -496,7 +491,6 @@ namespace ITDmProject
             SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
             serialeze.OnAfterDeserialize();
             Debug.Log(serialeze.ToString());
-            //texts = new Dictionary<string, string>();
             texts = serialeze.Data;
         }
         private void OnApplicationQuit()

@@ -122,7 +122,7 @@ namespace ITDmProject
                 return texts[key];
             else return key;
         }
-        // Use this for initialization
+        // 
         void OnEnable()
         {
             wordObjs = new Dictionary<string, Transform>();
@@ -154,8 +154,6 @@ namespace ITDmProject
             settings = new SerializeSettingsDesktop();
             settings.localisation = Languages.English;
             settings.serverName = ValidString.ReplaceChar(Environment.MachineName, '#', '_');
-            //settings.musicLevel = 50;
-            //settings.soundLevel = 50;
             settings.sphereRadius = 30;
             settings.objectRadius = 5;
             settings.delay = 3;
@@ -174,7 +172,7 @@ namespace ITDmProject
             {
                 FileStream fs = new FileStream(path, FileMode.Open);
                 settings = (SerializeSettingsDesktop)formatter.Deserialize(fs);
-                Debug.Log(path + " - ok");
+                Debug.Log(path + " - loaded");
                 fs.Close();
             }
             catch (Exception)
@@ -203,14 +201,12 @@ namespace ITDmProject
             if (server)
                 Destroy(server);
             server = new GameObject("server");
-            server.AddComponent<NetBroadcastTransmitter>();
-            //manager = server.AddComponent<NetworkManager>();
-            //manager.StartServer(new ConnectionConfig());
-        }
-        public void RunServerMessanger()
+            server.AddComponent<NetBroadcastTransmitter>();  //run on component start
+		}
+        public void RunServerMessanger() 
         {
-            server.AddComponent<NetMessageReciever>();
-        }
+            server.AddComponent<NetMessageReciever>(); //run on component start
+		}
         public void SetServerUp()
         {
             serverUp = true;
@@ -233,7 +229,6 @@ namespace ITDmProject
                         iter = 0;
                     Capture(keysList[iter]);
                     iter++;
-                    //Debug.Log ("delta:" + Time.deltaTime);
                 }
             }
         }
@@ -282,8 +277,6 @@ namespace ITDmProject
                         break;
                     }
             }
-            //SaveText();//debug only
-            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
             // передаем в конструктор тип класса
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
             // десериализация
@@ -292,7 +285,6 @@ namespace ITDmProject
             SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
             serialeze.OnAfterDeserialize();
             Debug.Log(serialeze.ToString());
-            //Texts = new Dictionary<string, string>();
             texts = serialeze.Data;
         }
         private void LoadLocalisationTextsDefault()
@@ -316,8 +308,6 @@ namespace ITDmProject
                         break;
                     }
             }
-            //SaveText();//debug only
-            //SerializeData<string, string> textsSer = new SerializeData<string, string>();
             // передаем в конструктор тип класса
             XmlSerializer formatter = new XmlSerializer(typeof(SerializeData<string, string>));
             // десериализация
@@ -326,7 +316,6 @@ namespace ITDmProject
             SerializeData<string, string> serialeze = (SerializeData<string, string>)formatter.Deserialize(fs);
             serialeze.OnAfterDeserialize();
             Debug.Log(serialeze.ToString());
-            //Texts = new Dictionary<string, string>();
             texts = serialeze.Data;
         }
 
@@ -495,7 +484,7 @@ namespace ITDmProject
             if (Allowed(text))
                 Capture(CreateWord(text));
         }
-        public void Delete(string word)
+        public void RemoveWord(string word)
         {
             for (int i = 0; i < keysList.Count; i++)
             {
@@ -521,7 +510,7 @@ namespace ITDmProject
         {
             SaveWords();
             SaveStopList();
-            //SaveSettings();
+            SaveSettings();
             ServerDown();
         }
     }

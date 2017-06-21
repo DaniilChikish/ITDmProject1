@@ -66,7 +66,6 @@ namespace ITDmProject
         {
             Debug.Log("WordList recieved.");
             string content = message.ReadMessage<StringMessage>().value;
-            //Debug.Log(content);
             string[] data = content.Split('#');
             List<string> buff = new List<string>(data);
             buff.Remove(buff[0]);
@@ -79,7 +78,6 @@ namespace ITDmProject
         {
             Debug.Log("StopList recieved.");
             string content = message.ReadMessage<StringMessage>().value;
-            //Debug.Log(content);
             string[] data = content.Split('#');
             List<string> buff = new List<string>(data);
             buff.Remove(buff[0]);
@@ -92,7 +90,6 @@ namespace ITDmProject
         {
             Debug.Log("Settings recieved.");
             string content = message.ReadMessage<StringMessage>().value;
-            //Debug.Log(content);
             string[] data = content.Split('#');
             Global.Duration = Convert.ToSingle(data[1]);
             Global.Delay = Convert.ToSingle(data[2]);

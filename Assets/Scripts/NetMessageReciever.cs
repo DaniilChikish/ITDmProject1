@@ -173,7 +173,7 @@ namespace ITDmProject
         }
 		public void DeleteWordF(string word)
 		{
-			Global.Delete(word);
+			Global.RemoveWord(word);
 		}
         public void AddStopF(string word)
 		{

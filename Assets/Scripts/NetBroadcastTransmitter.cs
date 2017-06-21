@@ -43,9 +43,9 @@ namespace ITDmProject
             }
         }
 
-        int minPort = 10000;
-        int maxPort = 10010;
-        int defaultPort = 10000;
+        private const int minPort = 10000;
+        private const int maxPort = 10010;
+        private const int defaultPort = 10000;
 
         //Creates a server then returns the port the server is created with. Returns -1 if server is not created
         private int CreateServer()
